@@ -1,0 +1,169 @@
+let discoveredLeads = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+  const companyInput = document.getElementById("company-input");
+  const maxResultsInput = document.getElementById("max-results");
+  const searchBtn = document.getElementById("search-btn");
+  const btnText = document.getElementById("btn-text");
+  const btnSpinner = document.getElementById("btn-spinner");
+  const emptyState = document.getElementById("empty-state");
+  const leadsList = document.getElementById("leads-list");
+  const leadCount = document.getElementById("lead-count");
+  const exportCsvBtn = document.getElementById("export-csv-btn");
+  
+  // Modal Elements
+  const modal = document.getElementById("outreach-modal");
+  const closeModal = document.getElementById("close-modal");
+  const modalLeadName = document.getElementById("modal-lead-name");
+  const notePreview = document.getElementById("note-preview");
+  const inmailSubject = document.getElementById("inmail-subject");
+  const inmailBody = document.getElementById("inmail-body");
+  const copyNoteBtn = document.getElementById("copy-note-btn");
+  const copyInmailBtn = document.getElementById("copy-inmail-btn");
+
+  // Toggle role pills
+  document.querySelectorAll(".pill").forEach(pill => {
+    pill.addEventListener("click", (e) => {
+      const checkbox = pill.querySelector("input");
+      if (e.target !== checkbox) checkbox.checked = !checkbox.checked;
+      pill.classList.toggle("active", checkbox.checked);
+    });
+  });
+
+  // Search Button Click Handler
+  searchBtn.addEventListener("click", async () => {
+    const rawInput = companyInput.value.trim();
+    if (!rawInput) {
+      alert("Please enter at least one target company name or domain.");
+      return;
+    }
+
+    const companies = rawInput.split("\n").map(c => c.trim()).filter(Boolean);
+    const maxResults = parseInt(maxResultsInput.value) || 5;
+
+    // Selected titles
+    const selectedTitles = Array.from(document.querySelectorAll(".pill input:checked")).map(cb => cb.value);
+
+    // UI Loading State
+    searchBtn.disabled = true;
+    btnText.textContent = "Scanning LinkedIn...";
+    btnSpinner.classList.remove("hidden");
+
+    try {
+      const response = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companies: companies,
+          target_titles: selectedTitles.length ? selectedTitles : null,
+          max_results_per_company: maxResults
+        })
+      });
+
+      const data = await response.json();
+      discoveredLeads = data.leads || [];
+      renderLeads(discoveredLeads);
+
+    } catch (err) {
+      console.error("Search error:", err);
+      alert("Failed to connect to search backend server.");
+    } finally {
+      searchBtn.disabled = false;
+      btnText.textContent = "🔍 Find Decision Makers";
+      btnSpinner.classList.add("hidden");
+    }
+  });
+
+  // Render Leads Function
+  function renderLeads(leads) {
+    leadCount.textContent = leads.length;
+    exportCsvBtn.disabled = leads.length === 0;
+
+    if (leads.length === 0) {
+      emptyState.classList.remove("hidden");
+      leadsList.classList.add("hidden");
+      return;
+    }
+
+    emptyState.classList.add("hidden");
+    leadsList.classList.remove("hidden");
+    leadsList.innerHTML = "";
+
+    leads.forEach((lead, idx) => {
+      const item = document.createElement("div");
+      item.className = "lead-item";
+
+      item.innerHTML = `
+        <div class="lead-info">
+          <div class="lead-name">${escapeHtml(lead.name)}</div>
+          <div class="lead-title">${escapeHtml(lead.title)} • <span class="lead-company">${escapeHtml(lead.company)}</span></div>
+        </div>
+        <div class="lead-actions">
+          <button class="action-btn view-outreach" data-index="${idx}">📝 Outreach Copy</button>
+          <a href="${escapeHtml(lead.linkedin_url)}" target="_blank" rel="noopener" class="action-btn">🔗 LinkedIn</a>
+        </div>
+      `;
+      leadsList.appendChild(item);
+    });
+
+    // Attach outreach view listeners
+    document.querySelectorAll(".view-outreach").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const index = e.target.getAttribute("data-index");
+        openOutreachModal(discoveredLeads[index]);
+      });
+    });
+  }
+
+  // Modal handlers
+  function openOutreachModal(lead) {
+    if (!lead) return;
+    modalLeadName.textContent = `Outreach Copy for ${lead.name} (${lead.company})`;
+    notePreview.textContent = lead.connection_note || "";
+    inmailSubject.textContent = lead.inmail?.subject || "";
+    inmailBody.textContent = lead.inmail?.body || "";
+    modal.classList.remove("hidden");
+  }
+
+  closeModal.addEventListener("click", () => modal.classList.add("hidden"));
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.classList.add("hidden");
+  });
+
+  // Copy Clipboard Handlers
+  copyNoteBtn.addEventListener("click", () => {
+    navigator.clipboard.writeText(notePreview.textContent);
+    copyNoteBtn.textContent = "✅ Copied!";
+    setTimeout(() => copyNoteBtn.textContent = "📋 Copy Note", 2000);
+  });
+
+  copyInmailBtn.addEventListener("click", () => {
+    const fullText = `Subject: ${inmailSubject.textContent}\n\n${inmailBody.textContent}`;
+    navigator.clipboard.writeText(fullText);
+    copyInmailBtn.textContent = "✅ Copied!";
+    setTimeout(() => copyInmailBtn.textContent = "📋 Copy InMail", 2000);
+  });
+
+  // CSV Export Handler
+  exportCsvBtn.addEventListener("click", async () => {
+    if (!discoveredLeads.length) return;
+    const response = await fetch("/api/export/csv", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(discoveredLeads)
+    });
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "target_company_leads.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+});

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Target Company Decision-Maker & LinkedIn Scout</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="brand-logo">🎯</div>
+        <div class="brand-title">CompanyLead<span>Scout</span></div>
+      </div>
+      <div class="header-actions">
+        <span class="status-badge" id="status-badge"><span class="pulse"></span> Engine Ready</span>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="main-grid">
+      <!-- Left Panel: Input & Settings -->
+      <section class="card input-card">
+        <h2>Target Companies</h2>
+        <p class="subtitle">Enter target company names or domain names (one per line):</p>
+        
+        <textarea id="company-input" placeholder="e.g.&#10;Acme Corp&#10;Stripe&#10;anthropic.com&#10;Vanguard Accounting"></textarea>
+
+        <div class="form-group">
+          <label>Max Decision Makers per Company</label>
+          <input type="number" id="max-results" value="5" min="1" max="10">
+        </div>
+
+        <div class="form-group">
+          <label>Target Role Criteria</label>
+          <div class="roles-pills" id="roles-pills">
+            <label class="pill active"><input type="checkbox" value="CEO" checked> CEO / Founder</label>
+            <label class="pill active"><input type="checkbox" value="COO" checked> COO / Operations</label>
+            <label class="pill active"><input type="checkbox" value="Controller" checked> Controller / Finance</label>
+            <label class="pill active"><input type="checkbox" value="President" checked> President / Owner</label>
+            <label class="pill"><input type="checkbox" value="Bookkeeper"> Bookkeeper / CPA</label>
+          </div>
+        </div>
+
+        <button id="search-btn" class="btn btn-primary">
+          <span id="btn-text">🔍 Find Decision Makers</span>
+          <div class="spinner hidden" id="btn-spinner"></div>
+        </button>
+      </section>
+
+      <!-- Right Panel: Results & Leads -->
+      <section class="card results-card">
+        <div class="results-header">
+          <div>
+            <h2>Discovered Contacts (<span id="lead-count">0</span>)</h2>
+            <p class="subtitle">CEOs, Founders & Key Decision Makers on LinkedIn</p>
+          </div>
+          <button id="export-csv-btn" class="btn btn-secondary" disabled>
+            📥 Export CSV
+          </button>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="empty-state">
+          <div class="empty-icon">🏢</div>
+          <h3>No leads discovered yet</h3>
+          <p>Enter target companies on the left and click "Find Decision Makers" to start scanning LinkedIn profiles.</p>
+        </div>
+
+        <!-- Leads Table / Grid -->
+        <div class="leads-list hidden" id="leads-list">
+          <!-- Lead Items Injected by JavaScript -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Outreach Modal -->
+  <div class="modal-overlay hidden" id="outreach-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-lead-name">Outreach Copy</h3>
+        <button class="close-btn" id="close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="copy-box">
+          <div class="copy-header">
+            <span>LinkedIn Connection Note (&lt;300 chars)</span>
+            <button class="copy-btn" id="copy-note-btn">📋 Copy Note</button>
+          </div>
+          <p id="note-preview" class="copy-text"></p>
+        </div>
+
+        <div class="copy-box">
+          <div class="copy-header">
+            <span>InMail / Cold Email Template</span>
+            <button class="copy-btn" id="copy-inmail-btn">📋 Copy InMail</button>
+          </div>
+          <h4 id="inmail-subject" class="inmail-subject"></h4>
+          <p id="inmail-body" class="copy-text pre-wrap"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

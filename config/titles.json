@@ -1,0 +1,34 @@
+{
+  "high_priority_titles": [
+    "CEO",
+    "Chief Executive Officer",
+    "Founder",
+    "Co-Founder",
+    "Owner",
+    "President",
+    "Managing Director",
+    "Principal",
+    "Chief Operating Officer",
+    "COO"
+  ],
+  "operations_titles": [
+    "Director of Operations",
+    "Operations Manager",
+    "Practice Manager",
+    "Office Manager"
+  ],
+  "finance_titles": [
+    "Financial Controller",
+    "Controller",
+    "Accounting Manager",
+    "CPA",
+    "Tax Accountant",
+    "Senior Bookkeeper",
+    "Bookkeeper"
+  ],
+  "search_role_keywords": [
+    "CEO OR Founder OR Owner OR President",
+    "COO OR Operations Manager OR Practice Manager",
+    "Controller OR Accounting Manager OR Financial Controller"
+  ]
+}
