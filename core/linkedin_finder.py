@@ -18,7 +18,7 @@ from core.company_enricher import CompanyEnricher
 from core.contact_parser import ContactParser
 
 class LinkedInFinder:
-    """Finds LinkedIn profile contacts for target companies across DDGS API and search fallback engines."""
+    """Finds LinkedIn profile contacts for target companies across DDGS, Bing, and fallback engines."""
 
     def __init__(self, user_agent: str = None):
         self.headers = {
@@ -47,11 +47,39 @@ class LinkedInFinder:
             print(f"[LinkedInFinder] DDGS search note: {e}")
         return results
 
+    def search_bing_html(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
+        """Scrapes Bing search results as a fast, reliable cloud fallback."""
+        results = []
+        try:
+            url = f"https://www.bing.com/search?q={urllib.parse.quote(query)}"
+            resp = requests.get(url, headers=self.headers, timeout=4)
+            if resp.status_code == 200:
+                soup = BeautifulSoup(resp.text, "html.parser")
+                items = soup.find_all("li", class_="b_algo")
+                for item in items:
+                    a_tag = item.find("a")
+                    if not a_tag:
+                        continue
+                    href = a_tag.get("href", "")
+                    title = a_tag.get_text(strip=True)
+                    p_tag = item.find("p")
+                    snippet = p_tag.get_text(strip=True) if p_tag else ""
+
+                    if ContactParser.is_valid_linkedin_profile(href):
+                        results.append({
+                            "title": title,
+                            "snippet": snippet,
+                            "url": href
+                        })
+        except Exception as e:
+            print(f"[LinkedInFinder] Bing HTML search note: {e}")
+        return results
+
     def search_duckduckgo_html(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
         results = []
         try:
             url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(query)}"
-            resp = requests.get(url, headers=self.headers, timeout=10)
+            resp = requests.get(url, headers=self.headers, timeout=4)
             if resp.status_code == 200:
                 soup = BeautifulSoup(resp.text, "html.parser")
                 links = soup.find_all("a", class_="result__url")
@@ -84,14 +112,19 @@ class LinkedInFinder:
         seen_urls = set()
         leads = []
 
-        for query in queries:
+        # Cap search queries to 2 max for cloud speed compliance
+        for query in queries[:2]:
             if len(leads) >= max_results:
                 break
 
-            # 1. Primary: DDGS package search
-            raw_results = self.search_ddgs_package(query, max_results=max_results)
+            # 1. Bing Search (Fastest cloud response)
+            raw_results = self.search_bing_html(query, max_results=max_results)
 
-            # 2. Fallback: DDG HTML scraping search
+            # 2. Primary DDGS package fallback
+            if not raw_results:
+                raw_results = self.search_ddgs_package(query, max_results=max_results)
+
+            # 3. DDG HTML scraping fallback
             if not raw_results:
                 raw_results = self.search_duckduckgo_html(query, max_results=max_results)
 
@@ -112,7 +145,5 @@ class LinkedInFinder:
 
                 if len(leads) >= max_results:
                     break
-
-            time.sleep(0.5)
 
         return leads
