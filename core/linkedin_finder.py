@@ -18,7 +18,7 @@ from core.company_enricher import CompanyEnricher
 from core.contact_parser import ContactParser
 
 class LinkedInFinder:
-    """Finds LinkedIn profile contacts for target companies across DDGS, Bing, and fallback engines."""
+    """Finds LinkedIn profile contacts with strict relevance filtering and direct profile URL parsing."""
 
     def __init__(self, user_agent: str = None):
         self.headers = {
@@ -48,7 +48,6 @@ class LinkedInFinder:
         return results
 
     def search_bing_html(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        """Scrapes Bing search results as a fast, reliable cloud fallback."""
         results = []
         try:
             url = f"https://www.bing.com/search?q={urllib.parse.quote(query)}"
@@ -106,21 +105,24 @@ class LinkedInFinder:
         return results
 
     def find_decision_makers(self, company_input: str, target_titles: List[str] = None, max_results: int = 5) -> List[Dict[str, Any]]:
+        # Handle direct pasted LinkedIn profile URL
+        if CompanyEnricher.is_direct_linkedin_url(company_input):
+            return [ContactParser.parse_direct_profile_url(company_input)]
+
         clean_company = CompanyEnricher.clean_company_name(company_input)
         queries = CompanyEnricher.get_search_queries(company_input, target_titles)
 
         seen_urls = set()
         leads = []
 
-        # Cap search queries to 2 max for cloud speed compliance
-        for query in queries[:2]:
+        for query in queries[:3]:
             if len(leads) >= max_results:
                 break
 
-            # 1. Bing Search (Fastest cloud response)
+            # 1. Bing Search
             raw_results = self.search_bing_html(query, max_results=max_results)
 
-            # 2. Primary DDGS package fallback
+            # 2. DDGS package fallback
             if not raw_results:
                 raw_results = self.search_ddgs_package(query, max_results=max_results)
 
@@ -133,6 +135,11 @@ class LinkedInFinder:
                 clean_url = ContactParser.clean_linkedin_url(url)
                 if clean_url in seen_urls:
                     continue
+
+                # Strict relevance check to prevent foreign / false positive hallucinations
+                if not ContactParser.is_relevant_lead(item["title"], item["snippet"], clean_company):
+                    continue
+
                 seen_urls.add(clean_url)
 
                 contact = ContactParser.parse_snippet(

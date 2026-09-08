@@ -2,48 +2,47 @@ import re
 from typing import Dict, Any, List
 
 class CompanyEnricher:
-    """Normalizes company inputs (names or domain URLs) and creates optimized search queries."""
+    """Normalizes company inputs (names, domains, or direct LinkedIn URLs) and creates optimized search queries."""
+
+    @staticmethod
+    def is_direct_linkedin_url(input_str: str) -> bool:
+        if not input_str:
+            return False
+        clean = input_str.strip().lower()
+        return "linkedin.com/in/" in clean or "bd.linkedin.com/in/" in clean
 
     @staticmethod
     def clean_company_name(input_str: str) -> str:
         if not input_str:
             return ""
         
-        # Remove http/https and www if passed as URL
+        if CompanyEnricher.is_direct_linkedin_url(input_str):
+            return input_str.strip()
+
         cleaned = re.sub(r"https?://(www\.)?", "", input_str.strip(), flags=re.IGNORECASE)
-        # Remove trailing slashes and paths if URL
         cleaned = cleaned.split('/')[0]
-        # Remove domain extensions if domain-like (e.g. acme.com -> acme)
-        if '.' in cleaned and not ' ' in cleaned:
-            cleaned = cleaned.split('.')[0]
-        
-        # Clean legal entity suffixes for broader search matching
-        suffixes = [
-            r"\bInc\.?\b", r"\bLLC\.?\b", r"\bLtd\.?\b", r"\bCorp\.?\b",
-            r"\bCorporation\b", r"\bGmbH\b", r"\bCo\.?\b", r"\bServices\b", r"\bGroup\b"
-        ]
-        company_name = cleaned
-        for suffix in suffixes:
-            company_name = re.sub(suffix, "", company_name, flags=re.IGNORECASE).strip()
-        
-        return company_name if company_name else cleaned
+        return cleaned
 
     @staticmethod
     def get_search_queries(company_raw: str, target_titles: List[str] = None) -> List[str]:
-        clean_name = CompanyEnricher.clean_company_name(company_raw)
         raw_name = company_raw.strip()
+        clean_domain = CompanyEnricher.clean_company_name(company_raw)
+        brand_name = clean_domain.split('.')[0] if '.' in clean_domain else clean_domain
 
         if not target_titles:
             target_titles = ["CEO", "Founder", "President", "Owner", "COO", "Managing Director", "Controller"]
 
         queries = []
-        # Title specific queries
-        for title in target_titles[:4]:
-            queries.append(f'site:linkedin.com/in/ "{clean_name}" {title}')
 
-        # Combined executive fallback queries
-        queries.append(f'site:linkedin.com/in/ "{clean_name}" executive OR founder OR owner')
-        queries.append(f'site:linkedin.com/in/ "{raw_name}"')
+        # 1. Exact domain match query (e.g., site:linkedin.com/in/ "bproperty.com" or "bproperties.com")
+        queries.append(f'site:linkedin.com/in/ "{clean_domain}"')
+        
+        # 2. Country/Regional targeted search query for Bangladesh & South Asia
+        queries.append(f'site:bd.linkedin.com/in/ "{brand_name}"')
+        queries.append(f'site:linkedin.com/in/ "{brand_name}" "Bangladesh"')
+        
+        # 3. Targeted titles with brand name in quotes
+        titles_str = " OR ".join([f'"{t}"' for t in target_titles[:3]])
+        queries.append(f'site:linkedin.com/in/ "{brand_name}" ({titles_str})')
 
         return queries
-
