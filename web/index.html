@@ -41,16 +41,25 @@
           <div class="roles-pills" id="roles-pills">
             <label class="pill active"><input type="checkbox" value="CEO" checked> CEO / Founder</label>
             <label class="pill active"><input type="checkbox" value="COO" checked> COO / Operations</label>
+            <label class="pill active"><input type="checkbox" value="Procurement Officer" checked> Procurement Officer</label>
+            <label class="pill active"><input type="checkbox" value="Head of Marketing and Sales" checked> Head of Marketing & Sales</label>
+            <label class="pill active"><input type="checkbox" value="Marketing Officer" checked> Marketing Officer</label>
+            <label class="pill active"><input type="checkbox" value="Sales Officer" checked> Sales Officer</label>
             <label class="pill active"><input type="checkbox" value="Controller" checked> Controller / Finance</label>
-            <label class="pill active"><input type="checkbox" value="President" checked> President / Owner</label>
-            <label class="pill"><input type="checkbox" value="Bookkeeper"> Bookkeeper / CPA</label>
+            <label class="pill"><input type="checkbox" value="President"> President / Owner</label>
           </div>
         </div>
 
-        <button id="search-btn" class="btn btn-primary">
-          <span id="btn-text">🔍 Find Decision Makers</span>
-          <div class="spinner hidden" id="btn-spinner"></div>
-        </button>
+        <div class="button-group" style="display:flex; gap:10px; margin-top:15px;">
+          <button id="search-btn" class="btn btn-primary" style="flex:1;">
+            <span id="btn-text">🔍 Find Decision Makers</span>
+            <div class="spinner hidden" id="btn-spinner"></div>
+          </button>
+          <button id="quick-intel-btn" class="btn btn-secondary">
+            🛡️ 360° Intel Audit
+          </button>
+        </div>
+
       </section>
 
       <!-- Right Panel: Results & Leads -->

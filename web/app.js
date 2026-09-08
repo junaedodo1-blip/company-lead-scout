@@ -30,7 +30,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Quick Intel Audit Handler
+  const quickIntelBtn = document.getElementById("quick-intel-btn");
+  if (quickIntelBtn) {
+    quickIntelBtn.addEventListener("click", () => {
+      const rawInput = companyInput.value.trim();
+      if (!rawInput) {
+        alert("Please enter a target company name or domain first.");
+        return;
+      }
+      const firstCompany = rawInput.split("\n")[0].trim();
+      openIntelModal(firstCompany);
+    });
+  }
+
   // Search Button Click Handler
+
   searchBtn.addEventListener("click", async () => {
     const rawInput = companyInput.value.trim();
     if (!rawInput) {
