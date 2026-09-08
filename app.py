@@ -12,6 +12,8 @@ import io
 from core.linkedin_finder import LinkedInFinder
 from core.outreach_generator import OutreachGenerator
 from core.company_enricher import CompanyEnricher
+from core.company_intel import CompanyIntelScout
+from core.vulnerability_analyzer import VulnerabilityAnalyzer
 
 app = FastAPI(title="Target Company Decision-Maker & LinkedIn Finder API")
 
@@ -25,6 +27,8 @@ app.add_middleware(
 )
 
 finder = LinkedInFinder()
+intel_scout = CompanyIntelScout()
+
 
 class SearchRequest(BaseModel):
     companies: List[str]
@@ -63,6 +67,25 @@ def search_leads(req: SearchRequest):
 
     return {"total": len(all_leads), "leads": all_leads}
 
+@app.get("/api/company/intel")
+def get_company_intel(company: str = Query(..., description="Target company name or domain")):
+    if not company:
+        raise HTTPException(status_code=400, detail="Company parameter required")
+    
+    web_data = intel_scout.fetch_website_details(company)
+    review_data = intel_scout.search_google_maps_reviews(company)
+    competitors = intel_scout.find_competitors(company)
+    analysis = VulnerabilityAnalyzer.analyze_vulnerabilities(web_data, review_data, competitors)
+    
+    return {
+        "company": company,
+        "website": web_data,
+        "reviews": review_data,
+        "competitors": competitors,
+        "analysis": analysis
+    }
+
+
 @app.post("/api/export/csv")
 def export_csv(leads: List[dict]):
     if not leads:
@@ -90,4 +113,7 @@ if os.path.exists(web_dir):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    host = os.environ.get("HOST", "0.0.0.0")
+    uvicorn.run(app, host=host, port=port)
+

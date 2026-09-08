@@ -9,13 +9,21 @@
     "Managing Director",
     "Principal",
     "Chief Operating Officer",
-    "COO"
+    "COO",
+    "Procurement Officer",
+    "Head of Marketing",
+    "Head of Sales",
+    "Head of Marketing and Sales",
+    "Marketing Officer",
+    "Sales Officer"
   ],
   "operations_titles": [
     "Director of Operations",
     "Operations Manager",
     "Practice Manager",
-    "Office Manager"
+    "Office Manager",
+    "Procurement Manager",
+    "Procurement Officer"
   ],
   "finance_titles": [
     "Financial Controller",
@@ -26,9 +34,20 @@
     "Senior Bookkeeper",
     "Bookkeeper"
   ],
+  "marketing_sales_titles": [
+    "Head of Marketing and Sales",
+    "Head of Marketing",
+    "Head of Sales",
+    "Marketing Officer",
+    "Sales Officer",
+    "Marketing Director",
+    "Sales Director"
+  ],
   "search_role_keywords": [
     "CEO OR Founder OR Owner OR President",
     "COO OR Operations Manager OR Practice Manager",
-    "Controller OR Accounting Manager OR Financial Controller"
+    "Controller OR Accounting Manager OR Financial Controller",
+    "Procurement Officer OR Head of Marketing OR Head of Sales",
+    "Marketing Officer OR Sales Officer"
   ]
 }

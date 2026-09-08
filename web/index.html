@@ -108,6 +108,34 @@
     </div>
   </div>
 
+  <!-- Company Intel Modal -->
+  <div class="modal-overlay hidden" id="intel-modal">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <h3 id="intel-company-name">360° Company & Competitor Intelligence</h3>
+        <button class="close-btn" id="close-intel-modal">&times;</button>
+      </div>
+      <div class="modal-body" id="intel-modal-body">
+        <div class="spinner" id="intel-spinner"></div>
+        <div class="intel-content hidden" id="intel-content">
+          <div class="intel-section">
+            <h4>🎯 Strategic Weak Spots & Vulnerabilities</h4>
+            <div id="intel-weakspots" class="tags-container"></div>
+          </div>
+          <div class="intel-section">
+            <h4>💡 Recommended Outreach Pitch Angle</h4>
+            <p id="intel-pitch-angle" class="pitch-box"></p>
+          </div>
+          <div class="intel-section">
+            <h4>⚔️ Direct Competitors & Positioning</h4>
+            <div id="intel-competitors" class="competitors-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="/static/app.js"></script>
+
 </body>
 </html>

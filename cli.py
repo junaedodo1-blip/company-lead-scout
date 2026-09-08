@@ -18,8 +18,11 @@ from rich.panel import Panel
 from core.linkedin_finder import LinkedInFinder
 from core.outreach_generator import OutreachGenerator
 from core.company_enricher import CompanyEnricher
+from core.company_intel import CompanyIntelScout
+from core.vulnerability_analyzer import VulnerabilityAnalyzer
 
 console = Console(force_terminal=False)
+
 
 
 def run_cli():
@@ -29,6 +32,8 @@ def run_cli():
     parser.add_argument("--titles", "-t", type=str, help="Comma-separated target job titles (e.g. 'CEO,Founder,COO,Controller')")
     parser.add_argument("--max-results", "-m", type=int, default=5, help="Max LinkedIn contacts to find per company (default: 5)")
     parser.add_argument("--export", "-e", type=str, help="Path to export results CSV or JSON (e.g. 'leads.csv')")
+    parser.add_argument("--intel", "-i", action="store_true", help="Fetch 360° company web presence, weak spots, and competitor intelligence")
+
 
     args = parser.parse_args()
 
@@ -55,12 +60,31 @@ def run_cli():
             sys.exit(1)
 
     finder = LinkedInFinder()
+    intel_scout = CompanyIntelScout()
     all_leads = []
 
-    console.print(Panel.fit("[bold blue]Target Company LinkedIn Lead Finder[/bold blue]", subtitle="Scanning executive decision-makers"))
+    console.print(Panel.fit("[bold blue]Target Company LinkedIn Lead Finder & Intel Scout[/bold blue]", subtitle="Scanning decision-makers & company vulnerabilities"))
 
     for comp in companies:
+        if args.intel:
+            console.print(f"\n[bold magenta][Intel Scout] Gathering intelligence & vulnerabilities for:[/bold magenta] [bold white]{comp}[/bold white]...")
+            web_data = intel_scout.fetch_website_details(comp)
+            rev_data = intel_scout.search_google_maps_reviews(comp)
+            competitors = intel_scout.find_competitors(comp)
+            analysis = VulnerabilityAnalyzer.analyze_vulnerabilities(web_data, rev_data, competitors)
+
+            console.print(f"  [cyan]Website status:[/cyan] {web_data.get('status')}")
+            if analysis['weak_spots']:
+                console.print("  [bold red]Weak Spots / Vulnerabilities Identified:[/bold red]")
+                for ws in analysis['weak_spots']:
+                    console.print(f"   • [{ws['category']}] {ws['issue']} (Severity: {ws['severity']})")
+            if competitors:
+                console.print(f"  [bold yellow]Key Competitors:[/bold yellow] {', '.join([c['name'] for c in competitors])}")
+            if analysis['pitch_hooks']:
+                console.print(f"  [bold green]Suggested Outreach Angles:[/bold green] {analysis['pitch_hooks'][0]}")
+
         console.print(f"\n[bold yellow][Search] Decision makers for:[/bold yellow] [bold white]{comp}[/bold white]...")
+
         leads = finder.find_decision_makers(comp, target_titles=target_titles, max_results=args.max_results)
 
         if not leads:

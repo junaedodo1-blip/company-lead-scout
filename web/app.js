@@ -99,6 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="lead-title">${escapeHtml(lead.title)} • <span class="lead-company">${escapeHtml(lead.company)}</span></div>
         </div>
         <div class="lead-actions">
+          <button class="action-btn view-intel" data-company="${escapeHtml(lead.company)}">🛡️ Company Intel</button>
           <button class="action-btn view-outreach" data-index="${idx}">📝 Outreach Copy</button>
           <a href="${escapeHtml(lead.linkedin_url)}" target="_blank" rel="noopener" class="action-btn">🔗 LinkedIn</a>
         </div>
@@ -113,7 +114,81 @@ document.addEventListener("DOMContentLoaded", () => {
         openOutreachModal(discoveredLeads[index]);
       });
     });
+
+    // Attach intel view listeners
+    document.querySelectorAll(".view-intel").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const company = e.target.getAttribute("data-company");
+        openIntelModal(company);
+      });
+    });
   }
+
+  // Intel Modal handlers
+  const intelModal = document.getElementById("intel-modal");
+  const closeIntelModal = document.getElementById("close-intel-modal");
+  const intelCompanyName = document.getElementById("intel-company-name");
+  const intelSpinner = document.getElementById("intel-spinner");
+  const intelContent = document.getElementById("intel-content");
+  const intelWeakspots = document.getElementById("intel-weakspots");
+  const intelPitchAngle = document.getElementById("intel-pitch-angle");
+  const intelCompetitors = document.getElementById("intel-competitors");
+
+  closeIntelModal.addEventListener("click", () => intelModal.classList.add("hidden"));
+  intelModal.addEventListener("click", (e) => {
+    if (e.target === intelModal) intelModal.classList.add("hidden");
+  });
+
+  async function openIntelModal(company) {
+    if (!company) return;
+    intelCompanyName.textContent = `360° Intelligence & Competitor Audit for ${company}`;
+    intelModal.classList.remove("hidden");
+    intelSpinner.classList.remove("hidden");
+    intelContent.classList.add("hidden");
+
+    try {
+      const res = await fetch(`/api/company/intel?company=${encodeURIComponent(company)}`);
+      const data = await res.json();
+      
+      // Render Weak Spots
+      intelWeakspots.innerHTML = "";
+      const weakSpots = data.analysis?.weak_spots || [];
+      if (weakSpots.length === 0) {
+        intelWeakspots.innerHTML = `<span class="badge badge-success">No critical digital weak spots detected</span>`;
+      } else {
+        weakSpots.forEach(ws => {
+          intelWeakspots.innerHTML += `<div class="badge badge-danger"><strong>${escapeHtml(ws.category)}:</strong> ${escapeHtml(ws.issue)}</div>`;
+        });
+      }
+
+      // Pitch angle
+      intelPitchAngle.textContent = (data.analysis?.pitch_hooks || [])[0] || "No pitch angle generated";
+
+      // Competitors
+      intelCompetitors.innerHTML = "";
+      const comps = data.competitors || [];
+      if (comps.length === 0) {
+        intelCompetitors.innerHTML = `<p>No competitor data found.</p>`;
+      } else {
+        comps.forEach(c => {
+          intelCompetitors.innerHTML += `
+            <div class="competitor-card">
+              <div class="comp-name">${escapeHtml(c.name)}</div>
+              <div class="comp-domain">${escapeHtml(c.domain)}</div>
+              <div class="comp-snippet">${escapeHtml(c.snippet)}</div>
+            </div>
+          `;
+        });
+      }
+
+    } catch (err) {
+      console.error("Intel fetch error:", err);
+    } finally {
+      intelSpinner.classList.add("hidden");
+      intelContent.classList.remove("hidden");
+    }
+  }
+
 
   // Modal handlers
   function openOutreachModal(lead) {
