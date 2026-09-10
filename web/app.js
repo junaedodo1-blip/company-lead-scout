@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Auto-load tab data on view switch
       if (targetTabId === "mailflare-tab-view") {
         loadMailflareInbox();
+        loadEmailAccounts();
       } else if (targetTabId === "warmup-tab-view") {
         loadWarmupStatus();
       } else if (targetTabId === "openreply-tab-view") {
@@ -190,6 +191,185 @@ document.addEventListener("DOMContentLoaded", () => {
         const idx = parseInt(e.currentTarget.getAttribute("data-index"), 10);
         openOutreachModal(discoveredLeads[idx]);
       });
+    });
+  }
+
+  // --- CLIENT EMAIL ACCOUNTS MANAGEMENT LOGIC ---
+  const accountsModal = document.getElementById("accounts-modal");
+  const openAccountsModalBtn = document.getElementById("open-accounts-modal-btn");
+  const closeAccountsModalBtn = document.getElementById("close-accounts-modal");
+  const accSenderName = document.getElementById("acc-sender-name");
+  const accEmail = document.getElementById("acc-email");
+  const accPreset = document.getElementById("acc-preset");
+  const accSmtpHost = document.getElementById("acc-smtp-host");
+  const accSmtpPort = document.getElementById("acc-smtp-port");
+  const accSmtpUser = document.getElementById("acc-smtp-user");
+  const accSmtpPass = document.getElementById("acc-smtp-pass");
+  const accSignature = document.getElementById("acc-signature");
+  const saveAccountBtn = document.getElementById("save-account-btn");
+  const accountsListContainer = document.getElementById("accounts-list-container");
+  const activeAccountSummary = document.getElementById("active-account-summary");
+
+  if (openAccountsModalBtn && accountsModal) {
+    openAccountsModalBtn.addEventListener("click", () => {
+      accountsModal.classList.remove("hidden");
+      loadEmailAccounts();
+    });
+  }
+
+  if (closeAccountsModalBtn && accountsModal) {
+    closeAccountsModalBtn.addEventListener("click", () => accountsModal.classList.add("hidden"));
+    accountsModal.addEventListener("click", (e) => {
+      if (e.target === accountsModal) accountsModal.classList.add("hidden");
+    });
+  }
+
+  if (accPreset) {
+    accPreset.addEventListener("change", () => {
+      const val = accPreset.value;
+      if (val === "google") {
+        accSmtpHost.value = "smtp.gmail.com";
+        accSmtpPort.value = "587";
+      } else if (val === "microsoft") {
+        accSmtpHost.value = "smtp.office365.com";
+        accSmtpPort.value = "587";
+      } else if (val === "mailgun") {
+        accSmtpHost.value = "smtp.mailgun.org";
+        accSmtpPort.value = "587";
+      } else {
+        accSmtpHost.value = "smtp.mailflare.io";
+        accSmtpPort.value = "587";
+      }
+    });
+  }
+
+  async function loadEmailAccounts() {
+    try {
+      const res = await fetch("/api/mailflare/accounts");
+      const data = await res.json();
+      const accounts = data.accounts || [];
+      renderAccountsList(accounts);
+    } catch (err) {
+      console.error("Error loading email accounts:", err);
+    }
+  }
+
+  function renderAccountsList(accounts) {
+    if (!accountsListContainer) return;
+    accountsListContainer.innerHTML = "";
+
+    if (accounts.length === 0) {
+      accountsListContainer.innerHTML = `<p class="subtitle">No sending accounts configured yet.</p>`;
+      return;
+    }
+
+    let defaultAcc = accounts.find(a => a.is_default) || accounts[0];
+    if (activeAccountSummary && defaultAcc) {
+      activeAccountSummary.innerHTML = `Active Sender: <strong>${escapeHtml(defaultAcc.email)}</strong> (${escapeHtml(defaultAcc.sender_name || "Client")}) • ${escapeHtml(defaultAcc.smtp_host)}`;
+    }
+
+    accounts.forEach(acc => {
+      const item = document.createElement("div");
+      item.className = "card";
+      item.style.padding = "12px";
+      item.style.background = "rgba(255, 255, 255, 0.03)";
+      item.style.gap = "6px";
+
+      const defaultBadge = acc.is_default 
+        ? `<span class="badge badge-success">Primary Default</span>` 
+        : `<button class="btn btn-secondary btn-small set-default-acc-btn" data-id="${acc.id}">Set Primary</button>`;
+
+      item.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="font-size:13px; color:var(--text-main);">${escapeHtml(acc.sender_name)}</strong>
+          ${defaultBadge}
+        </div>
+        <div style="font-size:12px; color:var(--accent-blue);">${escapeHtml(acc.email)}</div>
+        <div style="font-size:11px; color:var(--text-muted);">Host: ${escapeHtml(acc.smtp_host)}:${acc.smtp_port} • User: ${escapeHtml(acc.smtp_user)}</div>
+        <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:4px;">
+          <button class="btn btn-secondary btn-small del-acc-btn" data-id="${acc.id}" style="color:#ff6b6b;">🗑️ Delete</button>
+        </div>
+      `;
+
+      accountsListContainer.appendChild(item);
+    });
+
+    document.querySelectorAll(".set-default-acc-btn").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const id = e.currentTarget.getAttribute("data-id");
+        const targetAcc = accounts.find(a => a.id === id);
+        if (targetAcc) {
+          targetAcc.is_default = true;
+          await fetch("/api/mailflare/accounts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(targetAcc)
+          });
+          loadEmailAccounts();
+        }
+      });
+    });
+
+    document.querySelectorAll(".del-acc-btn").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const id = e.currentTarget.getAttribute("data-id");
+        if (confirm("Are you sure you want to delete this email account?")) {
+          await fetch(`/api/mailflare/accounts/${id}`, { method: "DELETE" });
+          loadEmailAccounts();
+        }
+      });
+    });
+  }
+
+  if (saveAccountBtn) {
+    saveAccountBtn.addEventListener("click", async () => {
+      const email = accEmail.value.trim();
+      const senderName = accSenderName.value.trim();
+      const smtpHost = accSmtpHost.value.trim();
+      const smtpPort = parseInt(accSmtpPort.value, 10) || 587;
+      const smtpUser = accSmtpUser.value.trim();
+      const smtpPass = accSmtpPass.value.trim();
+      const signature = accSignature.value.trim();
+
+      if (!email || !email.includes("@")) {
+        alert("Please enter a valid sender email address.");
+        return;
+      }
+
+      saveAccountBtn.disabled = true;
+      saveAccountBtn.textContent = "Saving Account...";
+
+      try {
+        const res = await fetch("/api/mailflare/accounts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: email,
+            sender_name: senderName || email.split("@")[0],
+            smtp_host: smtpHost || "smtp.gmail.com",
+            smtp_port: smtpPort,
+            smtp_user: smtpUser || email,
+            smtp_pass: smtpPass || "secret",
+            signature: signature,
+            is_default: true
+          })
+        });
+
+        if (!res.ok) throw new Error("Failed to save account");
+
+        alert(`Client Email Account (${email}) configured & set as primary default!`);
+        accEmail.value = "";
+        accSenderName.value = "";
+        accSmtpUser.value = "";
+        accSmtpPass.value = "";
+        accSignature.value = "";
+        loadEmailAccounts();
+      } catch (err) {
+        alert("Error saving client email account.");
+      } finally {
+        saveAccountBtn.disabled = false;
+        saveAccountBtn.textContent = "💾 Save Email Account";
+      }
     });
   }
 

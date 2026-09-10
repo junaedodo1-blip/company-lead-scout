@@ -25,7 +25,7 @@
       "company": "Direct Lead",
       "status": "New Inbound",
       "intent": "Inquiry",
-      "last_updated": 1789040325.4044318,
+      "last_updated": 1789041184.6383917,
       "messages": [
         {
           "msg_id": "m-9eb1bc",
@@ -43,6 +43,15 @@
           "from": "+8801711223344",
           "to": "System Host",
           "date": "2026-09-10 17:38:45",
+          "body": "Hello WhatsApp Lead"
+        },
+        {
+          "msg_id": "m-3c1dae",
+          "direction": "inbound",
+          "channel": "whatsapp",
+          "from": "+8801711223344",
+          "to": "System Host",
+          "date": "2026-09-10 17:53:04",
           "body": "Hello WhatsApp Lead"
         }
       ]
