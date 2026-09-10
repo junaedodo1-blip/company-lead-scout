@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import os
 import json
 import time
@@ -8,8 +8,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import Dict, Any, List, Optional
 
+import threading
+
 class MailflareEngine:
     """Outbound email dispatcher, Cloudflare/Mailflare webhook parser, and campaign state machine."""
+    _lock = threading.Lock()
 
     def __init__(self, data_dir: str = None):
         self.data_dir = data_dir or os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
@@ -18,58 +21,61 @@ class MailflareEngine:
         self._init_db()
 
     def _init_db(self):
-        if not os.path.exists(self.db_file):
-            initial_data = {
-                "threads": [
-                    {
-                        "thread_id": "thread-demo-1",
-                        "lead_name": "Rubyat Sobnom",
-                        "lead_email": "rubyat.sobnom@bproperty.com",
-                        "company": "Bproperty.com",
-                        "subject": "Quick question regarding operations at Bproperty.com",
-                        "status": "Meeting Requested",
-                        "intent": "High Intent",
-                        "last_updated": time.time() - 3600,
-                        "messages": [
-                            {
-                                "msg_id": "msg-1",
-                                "direction": "outbound",
-                                "from": "outreach@cielvisuals.com",
-                                "to": "rubyat.sobnom@bproperty.com",
-                                "date": "2026-09-10 10:00:00",
-                                "body": "Hi Rubyat,\n\nI reached out after seeing your role as Executive at Bproperty.com.\nWe help high-growth teams automate administrative & lead outreach workflows.\nWould you be open to a brief 10-minute chat next Tuesday?"
-                            },
-                            {
-                                "msg_id": "msg-2",
-                                "direction": "inbound",
-                                "from": "rubyat.sobnom@bproperty.com",
-                                "to": "outreach@cielvisuals.com",
-                                "date": "2026-09-10 11:30:00",
-                                "body": "Hi there,\n\nThanks for reaching out. Yes, Tuesday at 2 PM works well for me. Could you send over a calendar invite?\n\nBest,\nRubyat"
-                            }
-                        ]
-                    }
-                ],
-                "campaigns": [
-                    {
-                        "id": "camp-1",
-                        "name": "BD Real Estate Decision Makers",
-                        "sent_count": 24,
-                        "reply_count": 7,
-                        "status": "Active"
-                    }
-                ]
-            }
-            with open(self.db_file, "w", encoding="utf-8") as f:
-                json.dump(initial_data, f, indent=2)
+        with MailflareEngine._lock:
+            if not os.path.exists(self.db_file):
+                initial_data = {
+                    "threads": [
+                        {
+                            "thread_id": "thread-demo-1",
+                            "lead_name": "Rubyat Sobnom",
+                            "lead_email": "rubyat.sobnom@bproperty.com",
+                            "company": "Bproperty.com",
+                            "subject": "Quick question regarding operations at Bproperty.com",
+                            "status": "Meeting Requested",
+                            "intent": "High Intent",
+                            "last_updated": time.time() - 3600,
+                            "messages": [
+                                {
+                                    "msg_id": "msg-1",
+                                    "direction": "outbound",
+                                    "from": "outreach@cielvisuals.com",
+                                    "to": "rubyat.sobnom@bproperty.com",
+                                    "date": "2026-09-10 10:00:00",
+                                    "body": "Hi Rubyat,\n\nI reached out after seeing your role as Executive at Bproperty.com.\nWe help high-growth teams automate administrative & lead outreach workflows.\nWould you be open to a brief 10-minute chat next Tuesday?"
+                                },
+                                {
+                                    "msg_id": "msg-2",
+                                    "direction": "inbound",
+                                    "from": "rubyat.sobnom@bproperty.com",
+                                    "to": "outreach@cielvisuals.com",
+                                    "date": "2026-09-10 11:30:00",
+                                    "body": "Hi there,\n\nThanks for reaching out. Yes, Tuesday at 2 PM works well for me. Could you send over a calendar invite?\n\nBest,\nRubyat"
+                                }
+                            ]
+                        }
+                    ],
+                    "campaigns": [
+                        {
+                            "id": "camp-1",
+                            "name": "BD Real Estate Decision Makers",
+                            "sent_count": 24,
+                            "reply_count": 7,
+                            "status": "Active"
+                        }
+                    ]
+                }
+                with open(self.db_file, "w", encoding="utf-8") as f:
+                    json.dump(initial_data, f, indent=2)
 
     def _load_db(self) -> Dict[str, Any]:
-        with open(self.db_file, "r", encoding="utf-8") as f:
-            return json.load(f)
+        with MailflareEngine._lock:
+            with open(self.db_file, "r", encoding="utf-8") as f:
+                return json.load(f)
 
     def _save_db(self, data: Dict[str, Any]):
-        with open(self.db_file, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
+        with MailflareEngine._lock:
+            with open(self.db_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
 
     def get_threads(self) -> List[Dict[str, Any]]:
         db = self._load_db()
@@ -83,7 +89,6 @@ class MailflareEngine:
         return None
 
     def send_outreach_email(self, to_email: str, subject: str, body: str, lead_name: str = "", company: str = "") -> Dict[str, Any]:
-        db = self._load_db()
         thread_id = f"thread-{uuid.uuid4().hex[:8]}"
         msg_id = f"msg-{uuid.uuid4().hex[:6]}"
         now_str = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -131,8 +136,12 @@ class MailflareEngine:
             except Exception as e:
                 print(f"[MailflareEngine SMTP Error]: {e}")
 
-        db["threads"].insert(0, new_thread)
-        self._save_db(data=db)
+        with MailflareEngine._lock:
+            with open(self.db_file, "r", encoding="utf-8") as f:
+                db = json.load(f)
+            db["threads"].insert(0, new_thread)
+            with open(self.db_file, "w", encoding="utf-8") as f:
+                json.dump(db, f, indent=2)
 
         return {
             "success": True,
@@ -142,26 +151,30 @@ class MailflareEngine:
         }
 
     def add_reply(self, thread_id: str, body: str, direction: str = "outbound", from_email: str = "") -> Dict[str, Any]:
-        db = self._load_db()
-        for t in db["threads"]:
-            if t["thread_id"] == thread_id:
-                msg_id = f"msg-{uuid.uuid4().hex[:6]}"
-                now_str = time.strftime("%Y-%m-%d %H:%M:%S")
+        with MailflareEngine._lock:
+            with open(self.db_file, "r", encoding="utf-8") as f:
+                db = json.load(f)
 
-                new_msg = {
-                    "msg_id": msg_id,
-                    "direction": direction,
-                    "from": from_email or (os.getenv("OUTREACH_FROM_EMAIL", "outreach@cielvisuals.com") if direction == "outbound" else t["lead_email"]),
-                    "to": t["lead_email"] if direction == "outbound" else os.getenv("OUTREACH_FROM_EMAIL", "outreach@cielvisuals.com"),
-                    "date": now_str,
-                    "body": body
-                }
-                t["messages"].append(new_msg)
-                t["last_updated"] = time.time()
-                if direction == "outbound":
-                    t["status"] = "Replied"
-                self._save_db(db)
-                return {"success": True, "message": new_msg}
+            for t in db["threads"]:
+                if t["thread_id"] == thread_id:
+                    msg_id = f"msg-{uuid.uuid4().hex[:6]}"
+                    now_str = time.strftime("%Y-%m-%d %H:%M:%S")
+
+                    new_msg = {
+                        "msg_id": msg_id,
+                        "direction": direction,
+                        "from": from_email or (os.getenv("OUTREACH_FROM_EMAIL", "outreach@cielvisuals.com") if direction == "outbound" else t["lead_email"]),
+                        "to": t["lead_email"] if direction == "outbound" else os.getenv("OUTREACH_FROM_EMAIL", "outreach@cielvisuals.com"),
+                        "date": now_str,
+                        "body": body
+                    }
+                    t["messages"].append(new_msg)
+                    t["last_updated"] = time.time()
+                    if direction == "outbound":
+                        t["status"] = "Replied"
+                    with open(self.db_file, "w", encoding="utf-8") as f:
+                        json.dump(db, f, indent=2)
+                    return {"success": True, "message": new_msg}
         return {"success": False, "error": "Thread not found"}
 
     def handle_webhook_event(self, webhook_data: Dict[str, Any]) -> Dict[str, Any]:
