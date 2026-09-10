@@ -7,10 +7,14 @@ class ContactParser:
 
     @staticmethod
     def is_valid_linkedin_profile(url: str) -> bool:
-        if not url or "linkedin.com/in/" not in url.lower():
+        if not url:
             return False
-        invalid_patterns = ["/jobs/", "/company/", "/posts/", "/dir/", "/pulse/", "/learning/"]
-        return not any(p in url.lower() for p in invalid_patterns)
+        url_low = url.lower()
+        invalid_patterns = ["/jobs/", "/company/", "/posts/", "/dir/", "/pulse/", "/learning/", "/search", "/login", "/privacy", "/terms"]
+        if any(p in url_low for p in invalid_patterns):
+            return False
+        valid_domains = ["linkedin.com/in/", "crunchbase.com", "basis.org.bd", "dcci.org.bd", "bgmea.com.bd", "ecab.net.bd", "facebook.com", "twitter.com", "x.com", "github.com"]
+        return any(d in url_low for d in valid_domains)
 
     @staticmethod
     def clean_linkedin_url(url: str) -> str:

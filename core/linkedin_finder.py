@@ -18,7 +18,7 @@ from core.company_enricher import CompanyEnricher
 from core.contact_parser import ContactParser
 
 class LinkedInFinder:
-    """100% Authentic LinkedIn decision-maker scout across multi-engine real search scrapers and APIs."""
+    """100% Authentic LinkedIn decision-maker scout across SerpAPI, Google CSE, and multi-engine real search scrapers."""
 
     def __init__(self, user_agent: str = None):
         self.headers = {
@@ -26,8 +26,31 @@ class LinkedInFinder:
             "Accept-Language": "en-US,en;q=0.9",
         }
 
+    def search_serpapi(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
+        """SerpAPI integration for 100% reliable cloud Google search results."""
+        api_key = os.getenv("SERPAPI_KEY")
+        results = []
+        if not api_key:
+            return results
+        try:
+            url = f"https://serpapi.com/search.json?engine=google&q={urllib.parse.quote(query)}&api_key={api_key}"
+            resp = requests.get(url, timeout=5)
+            if resp.status_code == 200:
+                items = resp.json().get("organic_results", [])
+                for item in items:
+                    href = item.get("link", "")
+                    if ContactParser.is_valid_linkedin_profile(href):
+                        results.append({
+                            "title": item.get("title", ""),
+                            "snippet": item.get("snippet", ""),
+                            "url": href
+                        })
+        except Exception as e:
+            print(f"[LinkedInFinder] SerpAPI Note: {e}")
+        return results
+
     def search_google_custom_search(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        """Google Custom Search API for 100% official real Google results."""
+        """Google Custom Search API for official real Google results."""
         api_key = os.getenv("GOOGLE_API_KEY")
         cse_id = os.getenv("GOOGLE_CSE_ID")
         results = []
@@ -51,7 +74,6 @@ class LinkedInFinder:
         return results
 
     def search_ddgs_package(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        """Real DDGS package search."""
         results = []
         if not DDGS:
             return results
@@ -73,7 +95,6 @@ class LinkedInFinder:
         return results
 
     def search_bing_html(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        """Real Bing HTML scraper."""
         results = []
         try:
             url = f"https://www.bing.com/search?q={urllib.parse.quote(query)}"
@@ -100,17 +121,22 @@ class LinkedInFinder:
         return results
 
     def execute_search(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        # 1. Google Official API (if keys set)
+        # 1. SerpAPI (if SERPAPI_KEY is set)
+        res = self.search_serpapi(query, max_results=max_results)
+        if res:
+            return res
+
+        # 2. Google Custom Search (if GOOGLE_API_KEY is set)
         res = self.search_google_custom_search(query, max_results=max_results)
         if res:
             return res
 
-        # 2. DDGS Real Package
+        # 3. DDGS Real Package
         res = self.search_ddgs_package(query, max_results=max_results)
         if res:
             return res
 
-        # 3. Bing Real HTML Scraper
+        # 4. Bing Real Scraper
         return self.search_bing_html(query, max_results=max_results)
 
     def find_decision_makers(self, company_input: str, target_titles: List[str] = None, max_results: int = 5) -> List[Dict[str, Any]]:
