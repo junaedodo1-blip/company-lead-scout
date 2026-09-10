@@ -61,8 +61,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // UI Loading State
     searchBtn.disabled = true;
-    btnText.textContent = "Scanning LinkedIn...";
+    btnText.textContent = "Scanning decision-makers...";
     btnSpinner.classList.remove("hidden");
+
+    let seconds = 0;
+    const progressTimer = setInterval(() => {
+      seconds += 1;
+      btnText.textContent = `Scanning decision-makers... (${seconds}s)`;
+    }, 1000);
 
     try {
       const response = await fetch("/api/search", {
@@ -75,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
       });
 
+
       const data = await response.json();
       discoveredLeads = data.leads || [];
       renderLeads(discoveredLeads);
@@ -83,10 +90,12 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Search error:", err);
       alert("Failed to connect to search backend server.");
     } finally {
+      clearInterval(progressTimer);
       searchBtn.disabled = false;
       btnText.textContent = "🔍 Find Decision Makers";
       btnSpinner.classList.add("hidden");
     }
+
   });
 
   // Render Leads Function
