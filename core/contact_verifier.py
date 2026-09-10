@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import re
 import socket
 from typing import Dict, Any
@@ -10,10 +10,11 @@ class ContactVerifier:
     def verify_email_deliverability(email: str) -> Dict[str, Any]:
         if not email or "@" not in email:
             return {
-                "email": email,
+                "email": email or "",
                 "valid_syntax": False,
                 "mx_records_found": False,
                 "deliverable": False,
+                "bounce_risk": "High",
                 "status": "Invalid Syntax"
             }
 
@@ -32,6 +33,7 @@ class ContactVerifier:
                 "valid_syntax": valid_syntax,
                 "mx_records_found": False,
                 "deliverable": False,
+                "bounce_risk": "High",
                 "status": "Disposable Domain (High Bounce Risk)"
             }
 

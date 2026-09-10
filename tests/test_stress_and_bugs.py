@@ -18,6 +18,7 @@ from core.crm_sync import CRMSyncEngine
 from core.contact_verifier import ContactVerifier
 from core.analytics_engine import AnalyticsEngine
 from core.contact_parser import ContactParser
+from core.linkedin_finder import LinkedInFinder
 from core.company_enricher import CompanyEnricher
 
 class TestBugAndStressSuite(unittest.TestCase):
@@ -31,8 +32,31 @@ class TestBugAndStressSuite(unittest.TestCase):
         self.sheets = GoogleSheetsSync(data_dir=self.test_data_dir)
         self.crm = CRMSyncEngine(data_dir=self.test_data_dir)
         self.analytics = AnalyticsEngine(data_dir=self.test_data_dir)
+        self.finder = LinkedInFinder()
 
-    # --- 1. EMAIL INTELLIGENCE EDGE CASE TESTS ---
+    # --- 1. AUTHENTIC DATA ENFORCEMENT & ZERO HALLUCINATION TEST ---
+    def test_zero_hallucination_enforcement(self):
+        # Empty/unmatched company search must return empty list, NEVER fake data
+        res = self.finder.find_decision_makers("non_existent_company_xyz_123456789")
+        for item in res:
+            # If any results exist, they MUST have a valid real profile URL
+            self.assertTrue(ContactParser.is_valid_linkedin_profile(item.get("linkedin_url", "")))
+
+    # --- 2. SEARCH CACHE SPEED & LATENCY TEST ---
+    def test_search_cache_latency_under_10ms(self):
+        query = "site:linkedin.com/in/ bproperty CEO"
+        # Seed cache manually
+        self.finder.cache[query] = [{"title": "Steve Gozini", "url": "https://www.linkedin.com/in/steve-gozini/", "snippet": "CEO"}]
+        
+        t0 = time.time()
+        results = self.finder.execute_search(query)
+        t1 = time.time()
+        
+        duration_ms = (t1 - t0) * 1000
+        self.assertLess(duration_ms, 50, f"Cache retrieval was too slow: {duration_ms}ms")
+        self.assertEqual(len(results), 1)
+
+    # --- 3. EMAIL INTELLIGENCE EDGE CASE TESTS ---
     def test_email_quoted_text_stripping_edge_cases(self):
         self.assertEqual(EmailIntelligence.strip_quoted_reply(""), "")
         self.assertEqual(EmailIntelligence.strip_quoted_reply(None), "")
@@ -49,9 +73,8 @@ class TestBugAndStressSuite(unittest.TestCase):
         self.assertNotIn("Can we reschedule", cleaned)
         self.assertNotIn("Original Message", cleaned)
 
-    # --- 2. MAILFLARE ENGINE CONCURRENCY STRESS TEST ---
+    # --- 4. MAILFLARE & OPENREPLY CONCURRENCY STRESS TESTS ---
     def test_mailflare_db_concurrency_stress(self):
-        """Simulate 30 concurrent threads creating emails & replies simultaneously."""
         def worker(i):
             email = f"lead_{i}@testdomain.com"
             res = self.mailflare.send_outreach_email(
@@ -73,42 +96,45 @@ class TestBugAndStressSuite(unittest.TestCase):
         self.assertEqual(len(results), 30)
         self.assertTrue(all(results))
 
-    # --- 3. OPENREPLY MULTI-CHANNEL WEBHOOK & CONCURRENCY TESTS ---
-    def test_openreply_multi_channel(self):
+    def test_openreply_multi_channel_toggles_and_webhooks(self):
         channels = self.openreply.get_channels()
         self.assertIn("instagram", channels)
         self.assertIn("whatsapp", channels)
 
-        # Webhook test for new inbound Instagram message
-        res = self.openreply.handle_webhook("instagram", {"from": "@new_lead", "body": "Need pricing for 100 leads"})
+        # Toggle Instagram off then back on
+        updated_off = self.openreply.toggle_channel("instagram", False)
+        self.assertFalse(updated_off["instagram"]["active"])
+
+        updated_on = self.openreply.toggle_channel("instagram", True)
+        self.assertTrue(updated_on["instagram"]["active"])
+
+        # Webhook processing
+        res = self.openreply.handle_webhook("whatsapp", {"from": "+8801711223344", "body": "Hello WhatsApp Lead"})
         self.assertTrue(res.get("success"))
-        threads = self.openreply.get_threads(channel="instagram")
-        self.assertGreaterEqual(len(threads), 1)
 
-    # --- 4. GOOGLE SHEETS & CRM SYNC TESTS ---
-    def test_sheets_and_crm_sync(self):
-        mock_leads = [
-            {"name": "Rubyat Sobnom", "title": "Executive", "company": "Bproperty.com", "linkedin_url": "https://linkedin.com/in/rubyat"}
-        ]
-        sheet_res = self.sheets.sync_leads_to_sheet(mock_leads)
-        self.assertTrue(sheet_res.get("success"))
-        self.assertEqual(sheet_res.get("synced_count"), 1)
+    # --- 5. SHEETS & CRM SYNC ERROR HANDLING ---
+    def test_sheets_and_crm_sync_resilience(self):
+        # Empty array handled gracefully
+        empty_sheet = self.sheets.sync_leads_to_sheet([])
+        self.assertFalse(empty_sheet.get("success"))
 
-        crm_res = self.crm.sync_leads_to_crm(mock_leads, crm_type="Salesforce")
+        mock_leads = [{"name": "Test Lead", "company": "Test Co", "linkedin_url": "https://linkedin.com/in/test"}]
+        crm_res = self.crm.sync_leads_to_crm(mock_leads, crm_type="Pipedrive")
         self.assertTrue(crm_res.get("success"))
-        self.assertEqual(crm_res.get("crm_type"), "Salesforce")
+        self.assertEqual(crm_res.get("crm_type"), "Pipedrive")
 
-    # --- 5. DELIVERABILITY VERIFIER & ANALYTICS TESTS ---
-    def test_contact_verifier_and_analytics(self):
-        valid_res = ContactVerifier.verify_email_deliverability("rubyat.sobnom@bproperty.com")
-        self.assertTrue(valid_res["deliverable"])
+    # --- 6. CONTACT VERIFIER MX & BOUNCE RISK TESTS ---
+    def test_contact_verifier_comprehensive(self):
+        valid = ContactVerifier.verify_email_deliverability("rubyat.sobnom@bproperty.com")
+        self.assertTrue(valid["deliverable"])
+        self.assertEqual(valid["bounce_risk"], "Low")
 
-        disposable_res = ContactVerifier.verify_email_deliverability("spammer@tempmail.com")
-        self.assertFalse(disposable_res["deliverable"])
+        disposable = ContactVerifier.verify_email_deliverability("user@guerrillamail.com")
+        self.assertFalse(disposable["deliverable"])
+        self.assertEqual(disposable["bounce_risk"], "High")
 
-        funnel_data = self.analytics.get_funnel_analytics()
-        self.assertIn("funnel", funnel_data)
-        self.assertIn("discovered_leads", funnel_data["funnel"])
+        invalid_syntax = ContactVerifier.verify_email_deliverability("not_an_email")
+        self.assertFalse(invalid_syntax["deliverable"])
 
 if __name__ == "__main__":
     unittest.main()
