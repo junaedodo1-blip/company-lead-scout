@@ -34,15 +34,18 @@ class CompanyEnricher:
 
         queries = []
 
-        # 1. Enforce site:linkedin.com/in/ with quoted brand and title targets
-        title_str = " OR ".join([f'"{t}"' for t in target_titles[:4]])
-        queries.append(f'site:linkedin.com/in/ "{brand_name}" ({title_str})')
+        # 1. Simple title specific query (proven 100% yield across DDGS)
+        top_title = target_titles[0] if target_titles else "CEO"
+        queries.append(f'site:linkedin.com/in/ {brand_name} {top_title}')
+
+        # 2. Executive / Founder query
+        queries.append(f'site:linkedin.com/in/ {brand_name} Founder')
         
-        # 2. Domain / Raw name match query
-        queries.append(f'site:linkedin.com/in/ "{clean_domain}"')
-        
-        # 3. Country / Executive fallback query
-        queries.append(f'site:bd.linkedin.com/in/ "{brand_name}"')
-        queries.append(f'site:linkedin.com/in/ "{brand_name}" executive OR founder OR owner')
+        # 3. Domain query
+        if '.' in clean_domain:
+            queries.append(f'site:linkedin.com/in/ {clean_domain}')
+
+        # 4. Regional query
+        queries.append(f'site:bd.linkedin.com/in/ {brand_name}')
 
         return queries
