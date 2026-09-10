@@ -22,6 +22,7 @@ from core.google_sheets_sync import GoogleSheetsSync
 from core.crm_sync import CRMSyncEngine
 from core.contact_verifier import ContactVerifier
 from core.analytics_engine import AnalyticsEngine
+from core.keep_alive import KeepAliveEngine
 
 app = FastAPI(title="Target Company Decision-Maker & LinkedIn Finder API")
 
@@ -42,6 +43,11 @@ openreply = OpenReplyEngine()
 sheets_sync = GoogleSheetsSync()
 crm_sync = CRMSyncEngine()
 analytics = AnalyticsEngine()
+keep_alive = KeepAliveEngine()
+
+@app.on_event("startup")
+def start_keep_alive_ping():
+    keep_alive.start()
 
 
 class SearchRequest(BaseModel):

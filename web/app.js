@@ -1,4 +1,4 @@
-﻿let discoveredLeads = [];
+let discoveredLeads = [];
 let activeThreadId = null;
 let activeOpenReplyThreadId = null;
 let currentSelectedLeadForEmail = null;
@@ -17,13 +17,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Navigation Tab Switching across 6 Workspace Tabs
   document.querySelectorAll(".nav-tab").forEach(tabBtn => {
-    tabBtn.addEventListener("click", () => {
+    tabBtn.addEventListener("click", (e) => {
+      e.preventDefault();
       document.querySelectorAll(".nav-tab").forEach(b => b.classList.remove("active"));
-      document.querySelectorAll(".tab-view").forEach(v => v.classList.add("hidden"));
+      document.querySelectorAll(".tab-view").forEach(v => {
+        v.classList.add("hidden");
+        v.style.setProperty("display", "none", "important");
+      });
 
       tabBtn.classList.add("active");
       const targetViewId = tabBtn.getAttribute("data-tab");
-      document.getElementById(targetViewId).classList.remove("hidden");
+      const targetView = document.getElementById(targetViewId);
+      if (targetView) {
+        targetView.classList.remove("hidden");
+        targetView.style.setProperty("display", "block", "important");
+      }
 
       if (targetViewId === "mailflare-tab-view") {
         loadMailflareThreads();
