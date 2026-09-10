@@ -1,0 +1,15 @@
+﻿name: 24/7 Render Keep-Alive Heartbeat
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  keep-alive-ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Heartbeat Ping to Render Cloud
+        run: |
+          curl -s -X GET https://company-lead-scout-2.onrender.com/api/health
+          echo "Render server heartbeat ping completed at 09/10/2026 17:22:11"
