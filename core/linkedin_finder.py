@@ -51,8 +51,8 @@ class LinkedInFinder:
 
     def search_google_custom_search(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
         """Google Custom Search API for official real Google results."""
-        api_key = os.getenv("GOOGLE_API_KEY")
-        cse_id = os.getenv("GOOGLE_CSE_ID")
+        api_key = os.getenv("GOOGLE_API_KEY", "AIzaSyBpWXVWgwpV76W4VY74-m3r__tBJBMJcRI")
+        cse_id = os.getenv("GOOGLE_CSE_ID", "53f2ae2525ea0477f")
         results = []
         if not api_key or not cse_id:
             return results
