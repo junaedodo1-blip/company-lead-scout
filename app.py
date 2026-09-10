@@ -159,6 +159,13 @@ class EmailAccountRequest(BaseModel):
     is_default: Optional[bool] = False
 
 
+class TestSmtpRequest(BaseModel):
+    smtp_host: str
+    smtp_port: Optional[int] = 587
+    smtp_user: str
+    smtp_pass: str
+
+
 @app.get("/api/mailflare/accounts")
 def get_email_accounts():
     return {"accounts": mailflare.get_accounts()}
@@ -170,6 +177,16 @@ def add_or_update_email_account(req: EmailAccountRequest):
         raise HTTPException(status_code=400, detail="Valid email address required")
     res = mailflare.add_or_update_account(req.dict())
     return res
+
+
+@app.post("/api/mailflare/accounts/test")
+def test_smtp_account(req: TestSmtpRequest):
+    return MailflareEngine.test_smtp_connection(
+        host=req.smtp_host,
+        port=req.smtp_port or 587,
+        user=req.smtp_user,
+        password=req.smtp_pass
+    )
 
 
 @app.delete("/api/mailflare/accounts/{acc_id}")

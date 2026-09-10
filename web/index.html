@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=6">
+  <link rel="stylesheet" href="/static/style.css?v=7">
 </head>
 <body>
   <div class="app-container">
@@ -28,7 +28,8 @@
         <button class="nav-tab" data-tab="analytics-tab-view">📈 Analytics & Funnel</button>
       </nav>
 
-      <div class="header-actions">
+      <div class="header-actions" style="display:flex; gap:10px; align-items:center;">
+        <button id="header-open-accounts-btn" class="btn btn-secondary btn-small" style="font-size:12px;">⚙️ Email & SMTP Setup</button>
         <span class="status-badge" id="status-badge"><span class="pulse"></span> Engine Ready</span>
       </div>
     </header>
@@ -462,7 +463,10 @@
               <label>Email Signature (Text or HTML)</label>
               <textarea id="acc-signature" class="form-input" style="height:60px;" placeholder="Best regards, Alex | Client Operations"></textarea>
             </div>
-            <button id="save-account-btn" class="btn btn-primary" style="margin-top:10px;">💾 Save Email Account</button>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+              <button id="test-smtp-btn" class="btn btn-secondary" style="flex:1;">⚡ Test Connection</button>
+              <button id="save-account-btn" class="btn btn-primary" style="flex:1;">💾 Save Account</button>
+            </div>
           </div>
 
           <!-- Configured Accounts List -->
@@ -475,6 +479,6 @@
     </div>
   </div>
 
-  <script src="/static/app.js?v=6"></script>
+  <script src="/static/app.js?v=7"></script>
 </body>
 </html>

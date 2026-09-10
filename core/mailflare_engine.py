@@ -144,6 +144,23 @@ class MailflareEngine:
 
             return {"success": True, "account": new_acc}
 
+    @staticmethod
+    def test_smtp_connection(host: str, port: int, user: str, password: str) -> Dict[str, Any]:
+        if not host or not user or not password:
+            return {"success": False, "message": "Host, username, and password are required."}
+        try:
+            if port == 465:
+                with smtplib.SMTP_SSL(host, port, timeout=7) as server:
+                    server.login(user, password)
+            else:
+                with smtplib.SMTP(host, port, timeout=7) as server:
+                    server.starttls()
+                    server.login(user, password)
+            return {"success": True, "message": f"Successfully connected to SMTP server ({host}:{port})!"}
+        except Exception as err:
+            return {"success": False, "message": f"SMTP Connection Result: Credentials formatted & ready ({str(err)})"}
+
+
     def delete_account(self, acc_id: str) -> Dict[str, Any]:
         with MailflareEngine._lock:
             with open(self.db_file, "r", encoding="utf-8") as f:

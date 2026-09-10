@@ -197,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- CLIENT EMAIL ACCOUNTS MANAGEMENT LOGIC ---
   const accountsModal = document.getElementById("accounts-modal");
   const openAccountsModalBtn = document.getElementById("open-accounts-modal-btn");
+  const headerOpenAccountsBtn = document.getElementById("header-open-accounts-btn");
   const closeAccountsModalBtn = document.getElementById("close-accounts-modal");
   const accSenderName = document.getElementById("acc-sender-name");
   const accEmail = document.getElementById("acc-email");
@@ -206,15 +207,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const accSmtpUser = document.getElementById("acc-smtp-user");
   const accSmtpPass = document.getElementById("acc-smtp-pass");
   const accSignature = document.getElementById("acc-signature");
+  const testSmtpBtn = document.getElementById("test-smtp-btn");
   const saveAccountBtn = document.getElementById("save-account-btn");
   const accountsListContainer = document.getElementById("accounts-list-container");
   const activeAccountSummary = document.getElementById("active-account-summary");
 
-  if (openAccountsModalBtn && accountsModal) {
-    openAccountsModalBtn.addEventListener("click", () => {
+  function openAccountsModal() {
+    if (accountsModal) {
       accountsModal.classList.remove("hidden");
       loadEmailAccounts();
-    });
+    }
+  }
+
+  if (openAccountsModalBtn) {
+    openAccountsModalBtn.addEventListener("click", openAccountsModal);
+  }
+
+  if (headerOpenAccountsBtn) {
+    headerOpenAccountsBtn.addEventListener("click", openAccountsModal);
   }
 
   if (closeAccountsModalBtn && accountsModal) {
@@ -321,6 +331,44 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (testSmtpBtn) {
+    testSmtpBtn.addEventListener("click", async () => {
+      const smtpHost = accSmtpHost.value.trim();
+      const smtpPort = parseInt(accSmtpPort.value, 10) || 587;
+      const smtpUser = accSmtpUser.value.trim();
+      const smtpPass = accSmtpPass.value.trim();
+
+      if (!smtpHost || !smtpUser || !smtpPass) {
+        alert("Please fill in SMTP Host, Username, and Password to test connection.");
+        return;
+      }
+
+      testSmtpBtn.disabled = true;
+      testSmtpBtn.textContent = "Testing...";
+
+      try {
+        const res = await fetch("/api/mailflare/accounts/test", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            smtp_host: smtpHost,
+            smtp_port: smtpPort,
+            smtp_user: smtpUser,
+            smtp_pass: smtpPass
+          })
+        });
+
+        const data = await res.json();
+        alert(data.message || "SMTP connection verified!");
+      } catch (err) {
+        alert("SMTP Connection failed or timed out.");
+      } finally {
+        testSmtpBtn.disabled = false;
+        testSmtpBtn.textContent = "⚡ Test Connection";
+      }
+    });
+  }
+
   if (saveAccountBtn) {
     saveAccountBtn.addEventListener("click", async () => {
       const email = accEmail.value.trim();
@@ -337,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       saveAccountBtn.disabled = true;
-      saveAccountBtn.textContent = "Saving Account...";
+      saveAccountBtn.textContent = "Saving...";
 
       try {
         const res = await fetch("/api/mailflare/accounts", {
@@ -368,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Error saving client email account.");
       } finally {
         saveAccountBtn.disabled = false;
-        saveAccountBtn.textContent = "💾 Save Email Account";
+        saveAccountBtn.textContent = "💾 Save Account";
       }
     });
   }

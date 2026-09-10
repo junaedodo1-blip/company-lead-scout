@@ -37,5 +37,19 @@
       "reply_count": 7,
       "status": "Active"
     }
+  ],
+  "accounts": [
+    {
+      "id": "acc-default",
+      "email": "outreach@cielvisuals.com",
+      "sender_name": "Junaed (Ciel Visuals Outreach)",
+      "smtp_host": "smtp.mailflare.io",
+      "smtp_port": 587,
+      "smtp_user": "outreach@cielvisuals.com",
+      "smtp_pass": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+      "signature": "Best regards,\nJunaed | Ciel Visuals Outbound",
+      "is_default": true,
+      "status": "Connected"
+    }
   ]
 }
