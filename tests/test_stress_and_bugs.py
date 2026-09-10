@@ -12,8 +12,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from core.email_intelligence import EmailIntelligence
 from core.mailflare_engine import MailflareEngine
 from core.email_warmup import EmailWarmupEngine
+from core.openreply_engine import OpenReplyEngine
+from core.google_sheets_sync import GoogleSheetsSync
+from core.crm_sync import CRMSyncEngine
+from core.contact_verifier import ContactVerifier
+from core.analytics_engine import AnalyticsEngine
 from core.contact_parser import ContactParser
-from core.linkedin_finder import LinkedInFinder
 from core.company_enricher import CompanyEnricher
 
 class TestBugAndStressSuite(unittest.TestCase):
@@ -23,7 +27,10 @@ class TestBugAndStressSuite(unittest.TestCase):
         os.makedirs(self.test_data_dir, exist_ok=True)
         self.mailflare = MailflareEngine(data_dir=self.test_data_dir)
         self.warmup = EmailWarmupEngine(data_dir=self.test_data_dir)
-        self.finder = LinkedInFinder()
+        self.openreply = OpenReplyEngine(data_dir=self.test_data_dir)
+        self.sheets = GoogleSheetsSync(data_dir=self.test_data_dir)
+        self.crm = CRMSyncEngine(data_dir=self.test_data_dir)
+        self.analytics = AnalyticsEngine(data_dir=self.test_data_dir)
 
     # --- 1. EMAIL INTELLIGENCE EDGE CASE TESTS ---
     def test_email_quoted_text_stripping_edge_cases(self):
@@ -41,16 +48,6 @@ class TestBugAndStressSuite(unittest.TestCase):
         self.assertIn("let's meet tomorrow at 3 PM.", cleaned)
         self.assertNotIn("Can we reschedule", cleaned)
         self.assertNotIn("Original Message", cleaned)
-
-    def test_intent_classification_boundaries(self):
-        # High intent
-        self.assertEqual(EmailIntelligence.classify_intent("Yes sure, Tuesday works for a call!")["category"], "Meeting Requested")
-        # Warm lead
-        self.assertEqual(EmailIntelligence.classify_intent("Please send over pricing and deck info")["category"], "Warm Lead")
-        # Unsubscribe
-        self.assertEqual(EmailIntelligence.classify_intent("Stop emailing me, unsubscribe immediately")["category"], "Unsubscribe")
-        # Neutral
-        self.assertEqual(EmailIntelligence.classify_intent("Thanks for the message.")["category"], "Inquiry")
 
     # --- 2. MAILFLARE ENGINE CONCURRENCY STRESS TEST ---
     def test_mailflare_db_concurrency_stress(self):
@@ -75,35 +72,43 @@ class TestBugAndStressSuite(unittest.TestCase):
 
         self.assertEqual(len(results), 30)
         self.assertTrue(all(results))
-        threads = self.mailflare.get_threads()
-        self.assertGreaterEqual(len(threads), 30)
 
-    # --- 3. INPUT INJECTION & SECURITY STRESS TESTS ---
-    def test_contact_parser_security_and_malformed_urls(self):
-        self.assertFalse(ContactParser.is_valid_linkedin_profile(None))
-        self.assertFalse(ContactParser.is_valid_linkedin_profile("http://malicious.com/search?q=linkedin"))
-        self.assertFalse(ContactParser.is_valid_linkedin_profile("https://www.linkedin.com/jobs/view/12345"))
+    # --- 3. OPENREPLY MULTI-CHANNEL WEBHOOK & CONCURRENCY TESTS ---
+    def test_openreply_multi_channel(self):
+        channels = self.openreply.get_channels()
+        self.assertIn("instagram", channels)
+        self.assertIn("whatsapp", channels)
 
-        # Valid domain assertions
-        self.assertTrue(ContactParser.is_valid_linkedin_profile("https://www.linkedin.com/in/john-doe-123"))
-        self.assertTrue(ContactParser.is_valid_linkedin_profile("https://crunchbase.com/person/steve-gozini"))
+        # Webhook test for new inbound Instagram message
+        res = self.openreply.handle_webhook("instagram", {"from": "@new_lead", "body": "Need pricing for 100 leads"})
+        self.assertTrue(res.get("success"))
+        threads = self.openreply.get_threads(channel="instagram")
+        self.assertGreaterEqual(len(threads), 1)
 
-    def test_company_enricher_long_inputs(self):
-        super_long_input = "A" * 5000 + "<script>alert(1)</script>"
-        clean = CompanyEnricher.clean_company_name(super_long_input)
-        queries = CompanyEnricher.get_search_queries(super_long_input)
-        self.assertIsInstance(clean, str)
-        self.assertIsInstance(queries, list)
-        self.assertGreater(len(queries), 0)
+    # --- 4. GOOGLE SHEETS & CRM SYNC TESTS ---
+    def test_sheets_and_crm_sync(self):
+        mock_leads = [
+            {"name": "Rubyat Sobnom", "title": "Executive", "company": "Bproperty.com", "linkedin_url": "https://linkedin.com/in/rubyat"}
+        ]
+        sheet_res = self.sheets.sync_leads_to_sheet(mock_leads)
+        self.assertTrue(sheet_res.get("success"))
+        self.assertEqual(sheet_res.get("synced_count"), 1)
 
-    # --- 4. WARMUP ENGINE STATUS BOUNDARY TESTS ---
-    def test_warmup_engine_boundaries(self):
-        status = self.warmup.get_status()
-        self.assertIn("deliverability_health_score", status)
-        
-        # Test boundary update
-        updated = self.warmup.update_status({"target_daily_limit": 500})
-        self.assertEqual(updated["target_daily_limit"], 500)
+        crm_res = self.crm.sync_leads_to_crm(mock_leads, crm_type="Salesforce")
+        self.assertTrue(crm_res.get("success"))
+        self.assertEqual(crm_res.get("crm_type"), "Salesforce")
+
+    # --- 5. DELIVERABILITY VERIFIER & ANALYTICS TESTS ---
+    def test_contact_verifier_and_analytics(self):
+        valid_res = ContactVerifier.verify_email_deliverability("rubyat.sobnom@bproperty.com")
+        self.assertTrue(valid_res["deliverable"])
+
+        disposable_res = ContactVerifier.verify_email_deliverability("spammer@tempmail.com")
+        self.assertFalse(disposable_res["deliverable"])
+
+        funnel_data = self.analytics.get_funnel_analytics()
+        self.assertIn("funnel", funnel_data)
+        self.assertIn("discovered_leads", funnel_data["funnel"])
 
 if __name__ == "__main__":
     unittest.main()

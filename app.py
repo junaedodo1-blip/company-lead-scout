@@ -17,6 +17,11 @@ from core.vulnerability_analyzer import VulnerabilityAnalyzer
 from core.mailflare_engine import MailflareEngine
 from core.email_intelligence import EmailIntelligence
 from core.email_warmup import EmailWarmupEngine
+from core.openreply_engine import OpenReplyEngine
+from core.google_sheets_sync import GoogleSheetsSync
+from core.crm_sync import CRMSyncEngine
+from core.contact_verifier import ContactVerifier
+from core.analytics_engine import AnalyticsEngine
 
 app = FastAPI(title="Target Company Decision-Maker & LinkedIn Finder API")
 
@@ -33,6 +38,10 @@ finder = LinkedInFinder()
 intel_scout = CompanyIntelScout()
 mailflare = MailflareEngine()
 warmup_engine = EmailWarmupEngine()
+openreply = OpenReplyEngine()
+sheets_sync = GoogleSheetsSync()
+crm_sync = CRMSyncEngine()
+analytics = AnalyticsEngine()
 
 
 class SearchRequest(BaseModel):
@@ -219,6 +228,99 @@ def update_warmup_status(req: WarmupUpdateRequest):
 @app.post("/api/mailflare/webhook")
 def handle_mailflare_webhook(payload: dict):
     return mailflare.handle_webhook_event(payload)
+
+
+# --- OPENREPLY MULTI-CHANNEL ENDPOINTS ---
+
+class OpenReplyChannelToggle(BaseModel):
+    channel: str
+    active: bool
+
+class OpenReplyMessageReq(BaseModel):
+    thread_id: str
+    body: str
+
+class SheetsConfigReq(BaseModel):
+    webhook_url: Optional[str] = None
+    enabled: Optional[bool] = None
+
+class CRMSyncReq(BaseModel):
+    leads: List[dict]
+    crm_type: Optional[str] = "HubSpot"
+
+class EmailVerifyReq(BaseModel):
+    email: str
+
+
+@app.get("/api/openreply/channels")
+def get_openreply_channels():
+    return openreply.get_channels()
+
+
+@app.post("/api/openreply/channels")
+def toggle_openreply_channel(req: OpenReplyChannelToggle):
+    return openreply.toggle_channel(req.channel, req.active)
+
+
+@app.get("/api/openreply/threads")
+def get_openreply_threads(channel: Optional[str] = Query(None)):
+    return {"threads": openreply.get_threads(channel)}
+
+
+@app.post("/api/openreply/send")
+def send_openreply_msg(req: OpenReplyMessageReq):
+    res = openreply.send_message(req.thread_id, req.body)
+    if not res.get("success"):
+        raise HTTPException(status_code=400, detail=res.get("error", "Failed to send message"))
+    return res
+
+
+@app.post("/api/openreply/webhook/{channel}")
+def handle_openreply_webhook(channel: str, payload: dict):
+    return openreply.handle_webhook(channel, payload)
+
+
+# --- GOOGLE SHEETS & CRM SYNC ENDPOINTS ---
+
+@app.get("/api/sheets/config")
+def get_sheets_config():
+    return sheets_sync.get_config()
+
+
+@app.post("/api/sheets/config")
+def update_sheets_config(req: SheetsConfigReq):
+    updates = {}
+    if req.webhook_url is not None:
+        updates["webhook_url"] = req.webhook_url
+    if req.enabled is not None:
+        updates["enabled"] = req.enabled
+    return sheets_sync.update_config(updates)
+
+
+@app.post("/api/sheets/sync")
+def sync_leads_to_sheets(leads: List[dict]):
+    if not leads:
+        raise HTTPException(status_code=400, detail="No leads provided for sheet sync")
+    return sheets_sync.sync_leads_to_sheet(leads)
+
+
+@app.post("/api/crm/sync")
+def sync_leads_to_crm(req: CRMSyncReq):
+    if not req.leads:
+        raise HTTPException(status_code=400, detail="No leads provided for CRM sync")
+    return crm_sync.sync_leads_to_crm(req.leads, req.crm_type or "HubSpot")
+
+
+# --- DELIVERABILITY & ANALYTICS ENDPOINTS ---
+
+@app.post("/api/verify/email")
+def verify_email_deliverability(req: EmailVerifyReq):
+    return ContactVerifier.verify_email_deliverability(req.email)
+
+
+@app.get("/api/analytics/funnel")
+def get_funnel_analytics():
+    return analytics.get_funnel_analytics()
 
 
 # Mount web frontend static files

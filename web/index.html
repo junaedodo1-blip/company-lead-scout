@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Target Company Decision-Maker & Lead Scout Workspace</title>
+  <title>Target Company Decision-Maker & Multi-Channel Scout Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,6 +23,9 @@
         <button class="nav-tab active" data-tab="scout-tab-view">🎯 Lead Scout</button>
         <button class="nav-tab" data-tab="mailflare-tab-view">📬 Mailflare Inbox</button>
         <button class="nav-tab" data-tab="warmup-tab-view">🔥 Email Warmup</button>
+        <button class="nav-tab" data-tab="openreply-tab-view">💬 OpenReply Hub</button>
+        <button class="nav-tab" data-tab="sheets-tab-view">📊 Sheets & CRM Sync</button>
+        <button class="nav-tab" data-tab="analytics-tab-view">📈 Analytics & Funnel</button>
       </nav>
 
       <div class="header-actions">
@@ -73,10 +76,11 @@
         <!-- Right Panel: Results & Leads -->
         <section class="card results-card">
           <div class="results-header">
-            <h2>Discovered Leads & Decision Makers</h2>
+            2 Discovered Leads & Decision Makers</h2>
             <div class="header-tools">
               <span class="count-badge" id="leads-count">0 Leads Found</span>
               <button id="export-btn" class="btn btn-secondary hidden">📥 Export CSV</button>
+              <button id="sync-sheets-quick-btn" class="btn btn-secondary hidden">📊 Sync to Sheets</button>
             </div>
           </div>
 
@@ -99,24 +103,21 @@
         <!-- Thread Sidebar -->
         <aside class="card thread-sidebar">
           <div class="sidebar-header">
-            <h3>📬 Conversations</h3>
-            <span class="pulse-status">Live Webhooks Active</span>
+            <h3>📬 Email Conversations</h3>
+            <span class="pulse-status">Mailflare Active</span>
           </div>
-          <div class="thread-list" id="thread-list">
-            <!-- Rendered dynamically -->
-          </div>
+          <div class="thread-list" id="thread-list"></div>
         </aside>
 
         <!-- Active Thread Area -->
         <section class="card thread-content-panel">
           <div id="no-thread-selected" class="empty-state">
             <div class="empty-icon">📩</div>
-            <h3>Select a Conversation</h3>
+            <h3>Select an Email Conversation</h3>
             <p>Click an incoming lead response on the left to view message history and trigger AI auto-replies.</p>
           </div>
 
           <div id="active-thread-view" class="active-thread-view hidden">
-            <!-- Thread Header -->
             <div class="thread-main-header">
               <div>
                 <h3 id="active-lead-name">Lead Name</h3>
@@ -125,10 +126,8 @@
               <span id="active-intent-badge" class="intent-badge">Pending</span>
             </div>
 
-            <!-- Messages Timeline -->
             <div class="messages-timeline" id="messages-timeline"></div>
 
-            <!-- AI Smart Reply Banner -->
             <div class="ai-reply-box" id="ai-reply-box">
               <div class="ai-reply-header">
                 <span>🤖 AI Suggested Reply (Email Intelligence Engine)</span>
@@ -138,7 +137,6 @@
               <button class="btn btn-secondary btn-small" id="apply-smart-reply-btn">Use This Reply</button>
             </div>
 
-            <!-- Reply Composer -->
             <div class="reply-composer">
               <textarea id="reply-input" placeholder="Type your reply to this lead..."></textarea>
               <div class="composer-actions">
@@ -164,7 +162,6 @@
           </div>
         </div>
 
-        <!-- Metrics Overview Grid -->
         <div class="metrics-grid">
           <div class="metric-card">
             <div class="metric-label">Deliverability Health Score</div>
@@ -191,7 +188,6 @@
           </div>
         </div>
 
-        <!-- DNS Compliance Status -->
         <div class="dns-compliance-section">
           <h3>🛡️ Domain Deliverability & DNS Records</h3>
           <div class="dns-grid">
@@ -210,6 +206,134 @@
               <span class="badge-success">Valid</span>
               <code class="dns-val">v=DMARC1; p=none; rua=mailto:dmarc-reports@cielvisuals.com</code>
             </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 4: OPENREPLY HUB (INSTAGRAM, WHATSAPP, FACEBOOK) -->
+    <main class="tab-view hidden" id="openreply-tab-view">
+      <div class="inbox-layout">
+        <!-- Channels Sidebar -->
+        <aside class="card thread-sidebar">
+          <div class="sidebar-header">
+            <h3>💬 OpenReply Hub</h3>
+            <span class="pulse-status">Multi-Channel Active</span>
+          </div>
+
+          <!-- Channel Toggles -->
+          <div class="channels-status-box">
+            <div class="channel-toggle-item">
+              <span class="channel-badge badge-ig">Instagram DMs</span>
+              <label class="switch"><input type="checkbox" id="toggle-ig" checked><span class="slider"></span></label>
+            </div>
+            <div class="channel-toggle-item">
+              <span class="channel-badge badge-wa">WhatsApp Business</span>
+              <label class="switch"><input type="checkbox" id="toggle-wa" checked><span class="slider"></span></label>
+            </div>
+            <div class="channel-toggle-item">
+              <span class="channel-badge badge-fb">Facebook Messenger</span>
+              <label class="switch"><input type="checkbox" id="toggle-fb" checked><span class="slider"></span></label>
+            </div>
+          </div>
+
+          <div class="thread-list" id="openreply-thread-list"></div>
+        </aside>
+
+        <!-- OpenReply Active Conversation -->
+        <section class="card thread-content-panel">
+          <div id="no-openreply-selected" class="empty-state">
+            <div class="empty-icon">💬</div>
+            <h3>Select a Multi-Channel Conversation</h3>
+            <p>Click an Instagram, WhatsApp, or Facebook message on the left to start automated multi-channel messaging.</p>
+          </div>
+
+          <div id="active-openreply-view" class="active-thread-view hidden">
+            <div class="thread-main-header">
+              <div>
+                <h3 id="openreply-lead-name">Lead Name</h3>
+                <p id="openreply-lead-meta" class="subtitle">Handle • Platform</p>
+              </div>
+              <span id="openreply-intent-badge" class="intent-badge">Pending</span>
+            </div>
+
+            <div class="messages-timeline" id="openreply-timeline"></div>
+
+            <div class="reply-composer">
+              <textarea id="openreply-input" placeholder="Type your multi-channel reply..."></textarea>
+              <div class="composer-actions">
+                <button class="btn btn-primary" id="send-openreply-btn">💬 Send Multi-Channel Reply</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- TAB 5: SHEETS & CRM SYNC -->
+    <main class="tab-view hidden" id="sheets-tab-view">
+      <div class="card warmup-dashboard">
+        <h2>📊 Google Sheets & CRM Integration Hub</h2>
+        <p class="subtitle">Sync discovered decision makers directly to Google Sheets, HubSpot, Salesforce, Pipedrive, or GoHighLevel.</p>
+
+        <div class="sync-grid">
+          <!-- Google Sheets Box -->
+          <div class="sync-card">
+            <h3>📈 Google Sheets Live Sync</h3>
+            <p class="subtitle">Paste your Google Apps Script Webhook URL or Spreadsheet Webhook:</p>
+            <input type="text" id="sheets-url-input" class="form-input" placeholder="https://script.google.com/macros/s/.../exec">
+            <div class="button-group" style="margin-top:12px;">
+              <button id="save-sheets-config-btn" class="btn btn-secondary">💾 Save Webhook URL</button>
+              <button id="trigger-sheets-sync-btn" class="btn btn-primary">📊 Sync Current Leads to Sheet</button>
+            </div>
+            <p class="sync-meta" id="sheets-meta-text">Total Synced: 42 Leads • Auto-Sync Active</p>
+          </div>
+
+          <!-- CRM Box -->
+          <div class="sync-card">
+            <h3>🏢 CRM 1-Click Sync</h3>
+            <p class="subtitle">Select target CRM system:</p>
+            <select id="crm-select" class="form-input">
+              <option value="HubSpot">HubSpot CRM</option>
+              <option value="Salesforce">Salesforce</option>
+              <option value="Pipedrive">Pipedrive</option>
+              <option value="GoHighLevel">GoHighLevel</option>
+            </select>
+            <div class="button-group" style="margin-top:12px;">
+              <button id="trigger-crm-sync-btn" class="btn btn-primary">🚀 Push Leads to CRM</button>
+            </div>
+            <p class="sync-meta" id="crm-meta-text">19 Contacts Pushed to HubSpot CRM</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 6: ANALYTICS & FUNNEL -->
+    <main class="tab-view hidden" id="analytics-tab-view">
+      <div class="card warmup-dashboard">
+        <h2>📈 Conversion Funnel & Channel Analytics</h2>
+        <p class="subtitle">Real-time prospecting performance across Email, Instagram, WhatsApp, and Facebook.</p>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Total Leads Discovered</div>
+            <div class="metric-value" id="funnel-discovered">142</div>
+            <div class="metric-sub">Across Target Companies</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Outreach Dispatched</div>
+            <div class="metric-value text-gold" id="funnel-sent">86</div>
+            <div class="metric-sub">60.5% Dispatched</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Replies Received</div>
+            <div class="metric-value text-green" id="funnel-replies">29</div>
+            <div class="metric-sub">33.7% Response Rate</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Meetings Booked</div>
+            <div class="metric-value text-green" id="funnel-meetings">9</div>
+            <div class="metric-sub">Pipeline Value: ,500</div>
           </div>
         </div>
       </div>

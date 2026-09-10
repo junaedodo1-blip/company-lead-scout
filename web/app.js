@@ -1,5 +1,6 @@
 ﻿let discoveredLeads = [];
 let activeThreadId = null;
+let activeOpenReplyThreadId = null;
 let currentSelectedLeadForEmail = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -12,8 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const leadsContainer = document.getElementById("leads-container");
   const leadsCount = document.getElementById("leads-count");
   const exportBtn = document.getElementById("export-btn");
+  const syncSheetsQuickBtn = document.getElementById("sync-sheets-quick-btn");
 
-  // Navigation Tab Switching
+  // Navigation Tab Switching across 6 Workspace Tabs
   document.querySelectorAll(".nav-tab").forEach(tabBtn => {
     tabBtn.addEventListener("click", () => {
       document.querySelectorAll(".nav-tab").forEach(b => b.classList.remove("active"));
@@ -24,9 +26,15 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById(targetViewId).classList.remove("hidden");
 
       if (targetViewId === "mailflare-tab-view") {
-        loadThreads();
+        loadMailflareThreads();
       } else if (targetViewId === "warmup-tab-view") {
         loadWarmupStatus();
+      } else if (targetViewId === "openreply-tab-view") {
+        loadOpenReplyThreads();
+      } else if (targetViewId === "sheets-tab-view") {
+        loadSheetsConfig();
+      } else if (targetViewId === "analytics-tab-view") {
+        loadAnalyticsFunnel();
       }
     });
   });
@@ -117,6 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
       emptyState.classList.remove("hidden");
       leadsContainer.classList.add("hidden");
       exportBtn.classList.add("hidden");
+      if (syncSheetsQuickBtn) syncSheetsQuickBtn.classList.add("hidden");
       leadsCount.textContent = "0 Leads Found";
       return;
     }
@@ -124,6 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
     emptyState.classList.add("hidden");
     leadsContainer.classList.remove("hidden");
     exportBtn.classList.remove("hidden");
+    if (syncSheetsQuickBtn) syncSheetsQuickBtn.classList.remove("hidden");
     leadsCount.textContent = ${leads.length} Leads Discovered;
 
     leadsContainer.innerHTML = "";
@@ -154,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
             🛡️ 360° Audit
           </button>
           <button class="btn btn-primary btn-small outreach-btn" data-index="">
-            💬 Copy Outreach & Email
+            💬 Outreach & Email
           </button>
         </div>
       ;
@@ -178,40 +188,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Send Direct Email via Mailflare
-  if (sendDirectEmailBtn) {
-    sendDirectEmailBtn.addEventListener("click", async () => {
-      if (!currentSelectedLeadForEmail) return;
-      const recipientEmail = prompt("Enter recipient email address for outreach:", ${currentSelectedLeadForEmail.name.toLowerCase().replace(/\s+/g, '.')}@.com);
-      if (!recipientEmail) return;
-
-      sendDirectEmailBtn.disabled = true;
-      sendDirectEmailBtn.textContent = "Sending...";
-
-      try {
-        const res = await fetch("/api/mailflare/send", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            to_email: recipientEmail,
-            subject: inmailSubject.textContent,
-            body: inmailBody.textContent,
-            lead_name: currentSelectedLeadForEmail.name,
-            company: currentSelectedLeadForEmail.company
-          })
-        });
-        const result = await res.json();
-        alert("Outreach Email Dispatched! Track replies in Mailflare Inbox.");
-        modal.classList.add("hidden");
-      } catch (err) {
-        alert("Failed to send email: " + err.message);
-      } finally {
-        sendDirectEmailBtn.disabled = false;
-        sendDirectEmailBtn.textContent = "✉️ Dispatch Email via Mailflare";
-      }
-    });
-  }
-
   // --- MAILFLARE INBOX LOGIC ---
   const threadListEl = document.getElementById("thread-list");
   const noThreadSelected = document.getElementById("no-thread-selected");
@@ -227,17 +203,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const replyInput = document.getElementById("reply-input");
   const sendReplyBtn = document.getElementById("send-reply-btn");
 
-  async function loadThreads() {
+  async function loadMailflareThreads() {
     try {
       const res = await fetch("/api/mailflare/threads");
       const data = await res.json();
-      renderThreadList(data.threads || []);
+      renderMailflareThreadList(data.threads || []);
     } catch (err) {
-      console.error("Failed to load threads:", err);
+      console.error("Failed to load Mailflare threads:", err);
     }
   }
 
-  function renderThreadList(threads) {
+  function renderMailflareThreadList(threads) {
     threadListEl.innerHTML = "";
     if (threads.length === 0) {
       threadListEl.innerHTML = <p style="font-size:12px; color:var(--text-muted);">No active conversations yet.</p>;
@@ -256,12 +232,12 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="thread-subj"></div>
       ;
 
-      item.addEventListener("click", () => loadActiveThread(t.thread_id));
+      item.addEventListener("click", () => loadActiveMailflareThread(t.thread_id));
       threadListEl.appendChild(item);
     });
   }
 
-  async function loadActiveThread(threadId) {
+  async function loadActiveMailflareThread(threadId) {
     activeThreadId = threadId;
     try {
       const res = await fetch(/api/mailflare/threads/);
@@ -302,18 +278,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  if (generateSmartReplyBtn) {
-    generateSmartReplyBtn.addEventListener("click", () => {
-      if (activeThreadId) loadSmartReply(activeThreadId);
-    });
-  }
-
-  if (applySmartReplyBtn) {
-    applySmartReplyBtn.addEventListener("click", () => {
-      replyInput.value = aiReplyText.textContent;
-    });
-  }
-
   if (sendReplyBtn) {
     sendReplyBtn.addEventListener("click", async () => {
       const bodyText = replyInput.value.trim();
@@ -327,13 +291,209 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ thread_id: activeThreadId, body: bodyText })
         });
         replyInput.value = "";
-        loadActiveThread(activeThreadId);
+        loadActiveMailflareThread(activeThreadId);
       } catch (err) {
         alert("Failed to send reply: " + err.message);
       } finally {
         sendReplyBtn.disabled = false;
       }
     });
+  }
+
+  // --- OPENREPLY HUB LOGIC (INSTAGRAM, WHATSAPP, FACEBOOK) ---
+  const openreplyThreadList = document.getElementById("openreply-thread-list");
+  const noOpenreplySelected = document.getElementById("no-openreply-selected");
+  const activeOpenreplyView = document.getElementById("active-openreply-view");
+  const openreplyLeadName = document.getElementById("openreply-lead-name");
+  const openreplyLeadMeta = document.getElementById("openreply-lead-meta");
+  const openreplyIntentBadge = document.getElementById("openreply-intent-badge");
+  const openreplyTimeline = document.getElementById("openreply-timeline");
+  const openreplyInput = document.getElementById("openreply-input");
+  const sendOpenreplyBtn = document.getElementById("send-openreply-btn");
+
+  async function loadOpenReplyThreads() {
+    try {
+      const res = await fetch("/api/openreply/threads");
+      const data = await res.json();
+      renderOpenReplyThreadList(data.threads || []);
+    } catch (err) {
+      console.error("Failed to load OpenReply threads:", err);
+    }
+  }
+
+  function renderOpenReplyThreadList(threads) {
+    openreplyThreadList.innerHTML = "";
+    if (threads.length === 0) {
+      openreplyThreadList.innerHTML = <p style="font-size:12px; color:var(--text-muted);">No multi-channel conversations yet.</p>;
+      return;
+    }
+
+    threads.forEach(t => {
+      const item = document.createElement("div");
+      item.className = 	hread-item ;
+      const badgeClass = t.channel === "instagram" ? "badge-ig" : (t.channel === "whatsapp" ? "badge-wa" : "badge-fb");
+
+      item.innerHTML = 
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="thread-lead-name"></span>
+          <span class="channel-badge "></span>
+        </div>
+        <div class="thread-comp"></div>
+        <div class="thread-subj"></div>
+      ;
+
+      item.addEventListener("click", () => loadActiveOpenReplyThread(t));
+      openreplyThreadList.appendChild(item);
+    });
+  }
+
+  function loadActiveOpenReplyThread(thread) {
+    activeOpenReplyThreadId = thread.thread_id;
+    noOpenreplySelected.classList.add("hidden");
+    activeOpenreplyView.classList.remove("hidden");
+
+    openreplyLeadName.textContent = thread.lead_name;
+    openreplyLeadMeta.textContent = ${thread.company} •  ();
+    openreplyIntentBadge.textContent = thread.intent || "Active";
+
+    openreplyTimeline.innerHTML = "";
+    (thread.messages || []).forEach(m => {
+      const bubble = document.createElement("div");
+      bubble.className = msg-bubble ;
+      bubble.innerHTML = 
+        <div class="msg-meta"> • </div>
+        <div style="white-space:pre-wrap;"></div>
+      ;
+      openreplyTimeline.appendChild(bubble);
+    });
+    openreplyTimeline.scrollTop = openreplyTimeline.scrollHeight;
+  }
+
+  if (sendOpenreplyBtn) {
+    sendOpenreplyBtn.addEventListener("click", async () => {
+      const bodyText = openreplyInput.value.trim();
+      if (!bodyText || !activeOpenReplyThreadId) return;
+
+      sendOpenreplyBtn.disabled = true;
+      try {
+        await fetch("/api/openreply/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ thread_id: activeOpenReplyThreadId, body: bodyText })
+        });
+        openreplyInput.value = "";
+        loadOpenReplyThreads();
+      } catch (err) {
+        alert("Failed to send multi-channel message.");
+      } finally {
+        sendOpenreplyBtn.disabled = false;
+      }
+    });
+  }
+
+  // --- GOOGLE SHEETS & CRM SYNC LOGIC ---
+  const sheetsUrlInput = document.getElementById("sheets-url-input");
+  const saveSheetsConfigBtn = document.getElementById("save-sheets-config-btn");
+  const triggerSheetsSyncBtn = document.getElementById("trigger-sheets-sync-btn");
+  const crmSelect = document.getElementById("crm-select");
+  const triggerCrmSyncBtn = document.getElementById("trigger-crm-sync-btn");
+
+  async function loadSheetsConfig() {
+    try {
+      const res = await fetch("/api/sheets/config");
+      const cfg = await res.json();
+      if (sheetsUrlInput) sheetsUrlInput.value = cfg.webhook_url || "";
+      document.getElementById("sheets-meta-text").textContent = Total Synced:  Leads • Auto-Sync Active;
+    } catch (err) {
+      console.error("Error loading sheets config:", err);
+    }
+  }
+
+  if (saveSheetsConfigBtn) {
+    saveSheetsConfigBtn.addEventListener("click", async () => {
+      const url = sheetsUrlInput.value.trim();
+      await fetch("/api/sheets/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ webhook_url: url, enabled: true })
+      });
+      alert("Google Sheets Webhook Configuration Saved!");
+      loadSheetsConfig();
+    });
+  }
+
+  if (triggerSheetsSyncBtn) {
+    triggerSheetsSyncBtn.addEventListener("click", async () => {
+      if (!discoveredLeads.length) {
+        alert("No discovered leads to sync yet. Find decision makers first!");
+        return;
+      }
+      triggerSheetsSyncBtn.disabled = true;
+      triggerSheetsSyncBtn.textContent = "Syncing...";
+      try {
+        const res = await fetch("/api/sheets/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(discoveredLeads)
+        });
+        const result = await res.json();
+        alert(result.message || "Synced leads to Google Sheets!");
+        loadSheetsConfig();
+      } catch (err) {
+        alert("Failed to sync leads to Google Sheets.");
+      } finally {
+        triggerSheetsSyncBtn.disabled = false;
+        triggerSheetsSyncBtn.textContent = "📊 Sync Current Leads to Sheet";
+      }
+    });
+  }
+
+  if (syncSheetsQuickBtn) {
+    syncSheetsQuickBtn.addEventListener("click", () => {
+      if (triggerSheetsSyncBtn) triggerSheetsSyncBtn.click();
+    });
+  }
+
+  if (triggerCrmSyncBtn) {
+    triggerCrmSyncBtn.addEventListener("click", async () => {
+      if (!discoveredLeads.length) {
+        alert("No discovered leads to push to CRM yet.");
+        return;
+      }
+      const crmType = crmSelect.value;
+      triggerCrmSyncBtn.disabled = true;
+      triggerCrmSyncBtn.textContent = "Pushing to CRM...";
+      try {
+        const res = await fetch("/api/crm/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leads: discoveredLeads, crm_type: crmType })
+        });
+        const result = await res.json();
+        alert(result.message || Pushed leads to !);
+        document.getElementById("crm-meta-text").textContent = ${result.total_synced_contacts} Contacts Pushed to  CRM;
+      } catch (err) {
+        alert("Failed to push leads to CRM.");
+      } finally {
+        triggerCrmSyncBtn.disabled = false;
+        triggerCrmSyncBtn.textContent = "🚀 Push Leads to CRM";
+      }
+    });
+  }
+
+  // --- ANALYTICS FUNNEL LOGIC ---
+  async function loadAnalyticsFunnel() {
+    try {
+      const res = await fetch("/api/analytics/funnel");
+      const data = await res.json();
+      const f = data.funnel || {};
+      document.getElementById("funnel-discovered").textContent = f.discovered_leads || 0;
+      document.getElementById("funnel-sent").textContent = f.outreach_sent || 0;
+      document.getElementById("funnel-replies").textContent = f.replies_received || 0;
+      document.getElementById("funnel-meetings").textContent = f.meetings_booked || 0;
+    } catch (err) {
+      console.error("Error loading analytics:", err);
+    }
   }
 
   // --- EMAIL WARMUP LOGIC ---
