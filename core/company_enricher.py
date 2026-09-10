@@ -2,7 +2,7 @@ import re
 from typing import Dict, Any, List
 
 class CompanyEnricher:
-    """Normalizes company inputs (names, domains, or direct LinkedIn URLs) and creates optimized search queries."""
+    """Normalizes company inputs (names, domains, or direct LinkedIn URLs) and creates optimized natural search queries."""
 
     @staticmethod
     def is_direct_linkedin_url(input_str: str) -> bool:
@@ -34,15 +34,13 @@ class CompanyEnricher:
 
         queries = []
 
-        # 1. Exact domain match query (e.g., site:linkedin.com/in/ "bproperty.com" or "bproperties.com")
-        queries.append(f'site:linkedin.com/in/ "{clean_domain}"')
+        # 1. Natural search query (bypasses bot filters on cloud servers)
+        queries.append(f'{clean_domain} linkedin decision maker ceo founder')
         
-        # 2. Country/Regional targeted search query for Bangladesh & South Asia
-        queries.append(f'site:bd.linkedin.com/in/ "{brand_name}"')
-        queries.append(f'site:linkedin.com/in/ "{brand_name}" "Bangladesh"')
+        # 2. Targeted location & brand query
+        queries.append(f'{brand_name} Bangladesh linkedin executive director')
         
-        # 3. Targeted titles with brand name in quotes
-        titles_str = " OR ".join([f'"{t}"' for t in target_titles[:3]])
-        queries.append(f'site:linkedin.com/in/ "{brand_name}" ({titles_str})')
+        # 3. Exact site query fallback
+        queries.append(f'site:linkedin.com/in/ "{brand_name}"')
 
         return queries
