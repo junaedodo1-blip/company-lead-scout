@@ -28,12 +28,11 @@ class LinkedInFinder:
         }
 
     def search_ddgs_package(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        """Fast primary search using DDGS with strict 4-second timeout."""
         results = []
         if not DDGS:
             return results
         try:
-            with DDGS(timeout=4) as ddgs:
+            with DDGS(timeout=3) as ddgs:
                 ddg_res = list(ddgs.text(query, max_results=max_results * 2))
                 for item in ddg_res:
                     url = item.get("href", "")
@@ -49,34 +48,11 @@ class LinkedInFinder:
             print(f"[LinkedInFinder] DDGS search note: {e}")
         return results
 
-    def search_google_custom_search(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        api_key = os.getenv("GOOGLE_API_KEY")
-        cse_id = os.getenv("GOOGLE_CSE_ID")
-        results = []
-        if not api_key or not cse_id:
-            return results
-        try:
-            url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cse_id}&q={urllib.parse.quote(query)}"
-            resp = requests.get(url, timeout=3)
-            if resp.status_code == 200:
-                items = resp.json().get("items", [])
-                for item in items:
-                    href = item.get("link", "")
-                    if ContactParser.is_valid_linkedin_profile(href):
-                        results.append({
-                            "title": item.get("title", ""),
-                            "snippet": item.get("snippet", ""),
-                            "url": href
-                        })
-        except Exception as e:
-            print(f"[LinkedInFinder] Google CSE Note: {e}")
-        return results
-
     def search_bing_html(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
         results = []
         try:
             url = f"https://www.bing.com/search?q={urllib.parse.quote(query)}"
-            resp = requests.get(url, headers=self.headers, timeout=3)
+            resp = requests.get(url, headers=self.headers, timeout=4)
             if resp.status_code == 200:
                 soup = BeautifulSoup(resp.text, "html.parser")
                 for item in soup.find_all("li", class_="b_algo"):
@@ -99,14 +75,29 @@ class LinkedInFinder:
         return results
 
     def execute_parallel_search(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        """Runs DDGS library and Bing search concurrently with 4-second timeout limit."""
-        # 1. Fast direct DDGS
-        direct_ddg = self.search_ddgs_package(query, max_results=max_results)
-        if direct_ddg:
-            return direct_ddg
+        """Runs Bing and DDGS engines simultaneously in parallel for guaranteed cloud yield."""
+        engines = [
+            self.search_ddgs_package,
+            self.search_bing_html,
+        ]
+        
+        combined_results = []
+        seen = set()
 
-        # 2. Fast Bing fallback
-        return self.search_bing_html(query, max_results=max_results)
+        with ThreadPoolExecutor(max_workers=len(engines)) as executor:
+            future_to_engine = {executor.submit(engine, query, max_results): engine for engine in engines}
+            for future in as_completed(future_to_engine, timeout=5):
+                try:
+                    res = future.result()
+                    for item in res:
+                        url = item.get("url")
+                        if url and url not in seen:
+                            seen.add(url)
+                            combined_results.append(item)
+                except Exception:
+                    pass
+
+        return combined_results
 
     def find_decision_makers(self, company_input: str, target_titles: List[str] = None, max_results: int = 5) -> List[Dict[str, Any]]:
         if CompanyEnricher.is_direct_linkedin_url(company_input):
@@ -118,7 +109,6 @@ class LinkedInFinder:
         seen_urls = set()
         leads = []
 
-        # Run query variation
         for query in queries[:2]:
             if len(leads) >= max_results:
                 break
