@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "webhook_url": "https://script.google.com/macros/s/AKfycbxDemoWebhookScriptId/exec",
+  "sheet_name": "Target Decision Makers",
+  "auto_sync_on_search": true,
+  "last_synced": 1789031530.9641037,
+  "total_leads_synced": 42
+}

@@ -1,0 +1,6 @@
+{
+  "crm_type": "HubSpot",
+  "api_key": "pat-na1-demo-key-12345",
+  "auto_sync_high_intent": true,
+  "total_synced_contacts": 19
+}
