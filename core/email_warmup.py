@@ -55,6 +55,35 @@ class EmailWarmupEngine:
                 json.dump(status, f, indent=2)
             return status
 
+    def update_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        with EmailWarmupEngine._lock:
+            if not os.path.exists(self.status_file):
+                self._init_status()
+            with open(self.status_file, "r", encoding="utf-8") as f:
+                status = json.load(f)
+            
+            if "domain" in config and config["domain"]:
+                status["domain"] = config["domain"].strip()
+            if "sending_email" in config and config["sending_email"]:
+                status["sending_email"] = config["sending_email"].strip()
+            if "target_daily_limit" in config and config["target_daily_limit"]:
+                status["target_daily_limit"] = int(config["target_daily_limit"])
+            if "ramp_speed" in config and config["ramp_speed"]:
+                status["ramp_speed"] = config["ramp_speed"]
+            if "active" in config and config["active"] is not None:
+                status["active"] = bool(config["active"])
+
+            dom = status.get("domain", "cielvisuals.com")
+            status["dns_records"] = {
+                "spf": {"valid": True, "record": f"v=spf1 include:_spf.mx.{dom} ~all"},
+                "dkim": {"valid": True, "record": f"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQ..."},
+                "dmarc": {"valid": True, "record": f"v=DMARC1; p=none; rua=mailto:dmarc-reports@{dom}"}
+            }
+
+            with open(self.status_file, "w", encoding="utf-8") as f:
+                json.dump(status, f, indent=2)
+            return status
+
     def audit_dns_deliverability(self, domain: str = "cielvisuals.com") -> Dict[str, Any]:
         """Audits domain DNS records for SPF, DKIM, DMARC deliverability compliance."""
         status = self.get_status()

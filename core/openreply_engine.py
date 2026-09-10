@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import os
 import json
 import time
@@ -105,6 +105,42 @@ class OpenReplyEngine:
                 with open(self.db_file, "w", encoding="utf-8") as f:
                     json.dump(db, f, indent=2)
             return db.get("channels", {})
+
+    def update_channels_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        with OpenReplyEngine._lock:
+            with open(self.db_file, "r", encoding="utf-8") as f:
+                db = json.load(f)
+            
+            channels = db.get("channels", {})
+            if "instagram" not in channels: channels["instagram"] = {}
+            if "whatsapp" not in channels: channels["whatsapp"] = {}
+            if "facebook" not in channels: channels["facebook"] = {}
+
+            if "ig_handle" in config and config["ig_handle"]:
+                channels["instagram"]["account"] = config["ig_handle"].strip()
+            if "ig_token" in config:
+                channels["instagram"]["token"] = config["ig_token"].strip()
+            if "ig_active" in config and config["ig_active"] is not None:
+                channels["instagram"]["active"] = bool(config["ig_active"])
+
+            if "wa_phone" in config and config["wa_phone"]:
+                channels["whatsapp"]["phone"] = config["wa_phone"].strip()
+            if "wa_token" in config:
+                channels["whatsapp"]["token"] = config["wa_token"].strip()
+            if "wa_active" in config and config["wa_active"] is not None:
+                channels["whatsapp"]["active"] = bool(config["wa_active"])
+
+            if "fb_page" in config and config["fb_page"]:
+                channels["facebook"]["page"] = config["fb_page"].strip()
+            if "fb_token" in config:
+                channels["facebook"]["token"] = config["fb_token"].strip()
+            if "fb_active" in config and config["fb_active"] is not None:
+                channels["facebook"]["active"] = bool(config["fb_active"])
+
+            db["channels"] = channels
+            with open(self.db_file, "w", encoding="utf-8") as f:
+                json.dump(db, f, indent=2)
+            return channels
 
     def get_threads(self, channel: Optional[str] = None) -> List[Dict[str, Any]]:
         db = self._load_db()

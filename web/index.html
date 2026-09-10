@@ -168,9 +168,10 @@
             <h2>🔥 Domain Email Warmup & Deliverability Health</h2>
             <p class="subtitle">Automated peer-to-peer sending ramp-up & spam rescue engine for <strong>cielvisuals.com</strong></p>
           </div>
-          <div class="warmup-toggle-box">
+          <div class="warmup-toggle-box" style="display:flex; gap:10px; align-items:center;">
+            <button id="open-warmup-modal-btn" class="btn btn-primary btn-small">⚙️ Setup Warmup Domain & Emails</button>
             <span id="warmup-status-label" class="badge-active">Warmup Active</span>
-            <button id="toggle-warmup-btn" class="btn btn-secondary">Pause Warmup</button>
+            <button id="toggle-warmup-btn" class="btn btn-secondary btn-small">Pause Warmup</button>
           </div>
         </div>
 
@@ -228,9 +229,9 @@
       <div class="inbox-layout">
         <!-- Channels Sidebar -->
         <aside class="card thread-sidebar">
-          <div class="sidebar-header">
+          <div class="sidebar-header" style="display:flex; justify-content:space-between; align-items:center;">
             <h3>💬 OpenReply Hub</h3>
-            <span class="pulse-status">Multi-Channel Active</span>
+            <button id="open-openreply-modal-btn" class="btn btn-primary btn-small" style="font-size:11px; padding:4px 8px;">⚙️ Channels</button>
           </div>
 
           <!-- Channel Toggles -->
@@ -475,6 +476,104 @@
             <div id="accounts-list-container" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;"></div>
           </div>
         </div>
+      </div>
+    </div>
+  <!-- Warmup Setup Modal -->
+  <div class="modal-overlay hidden" id="warmup-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🔥 Setup Domain Warmup & Email Deliverability</h3>
+        <button class="close-btn" id="close-warmup-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="subtitle">Connect your custom sending domain, target volume limits, and automated deliverability ramp rate.</p>
+
+        <div class="form-group">
+          <label>Target Warmup Domain</label>
+          <input type="text" id="warmup-domain-input" class="form-input" placeholder="e.g. clientdomain.com" value="cielvisuals.com">
+        </div>
+        <div class="form-group">
+          <label>Sending Email Address</label>
+          <input type="email" id="warmup-email-input" class="form-input" placeholder="e.g. outreach@clientdomain.com" value="outreach@cielvisuals.com">
+        </div>
+        <div class="form-group" style="display:flex; gap:10px;">
+          <div style="flex:1;">
+            <label>Target Daily Sending Limit</label>
+            <input type="number" id="warmup-daily-limit-input" class="form-input" placeholder="50" value="50">
+          </div>
+          <div style="flex:1;">
+            <label>Warmup Ramp Speed</label>
+            <select id="warmup-ramp-select" class="form-input">
+              <option value="balanced">Balanced (+5 emails/day)</option>
+              <option value="conservative">Conservative (+2 emails/day)</option>
+              <option value="aggressive">Aggressive (+15 emails/day)</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="save-warmup-config-btn" class="btn btn-primary" style="margin-top:10px;">💾 Save Warmup Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OpenReply Channel Credentials Modal -->
+  <div class="modal-overlay hidden" id="openreply-modal">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <h3>💬 Connect Multi-Channel Messaging Accounts & Meta API Tokens</h3>
+        <button class="close-btn" id="close-openreply-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="subtitle">Configure Instagram DMs, WhatsApp Business API, and Facebook Messenger tokens for automated multi-channel messaging.</p>
+
+        <div style="display:flex; flex-direction:column; gap:15px;">
+          <!-- Instagram Box -->
+          <div class="sync-card">
+            <h4 style="color:#e1306c;">📸 Instagram DM Channel Credentials</h4>
+            <div style="display:flex; gap:10px;">
+              <div style="flex:1;">
+                <label style="font-size:12px; color:var(--text-muted);">Account Handle</label>
+                <input type="text" id="openreply-ig-handle" class="form-input" placeholder="@client.brand" value="@cielvisuals.official">
+              </div>
+              <div style="flex:2;">
+                <label style="font-size:12px; color:var(--text-muted);">Meta Graph API Token / Secret</label>
+                <input type="password" id="openreply-ig-token" class="form-input" placeholder="EAABwz..." value="EAABwz98321049281">
+              </div>
+            </div>
+          </div>
+
+          <!-- WhatsApp Box -->
+          <div class="sync-card">
+            <h4 style="color:#25d366;">🟢 WhatsApp Business API Credentials</h4>
+            <div style="display:flex; gap:10px;">
+              <div style="flex:1;">
+                <label style="font-size:12px; color:var(--text-muted);">Business Phone Number</label>
+                <input type="text" id="openreply-wa-phone" class="form-input" placeholder="+1 (555) 019-2834" value="+8801700000000">
+              </div>
+              <div style="flex:2;">
+                <label style="font-size:12px; color:var(--text-muted);">WhatsApp System User Token</label>
+                <input type="password" id="openreply-wa-token" class="form-input" placeholder="EAAGz..." value="EAAGz109283019283">
+              </div>
+            </div>
+          </div>
+
+          <!-- Facebook Box -->
+          <div class="sync-card">
+            <h4 style="color:#1877f2;">🔵 Facebook Messenger Page Credentials</h4>
+            <div style="display:flex; gap:10px;">
+              <div style="flex:1;">
+                <label style="font-size:12px; color:var(--text-muted);">Page Name / ID</label>
+                <input type="text" id="openreply-fb-page" class="form-input" placeholder="Client B2B Page" value="Ciel Visuals B2B">
+              </div>
+              <div style="flex:2;">
+                <label style="font-size:12px; color:var(--text-muted);">Page Access Token</label>
+                <input type="password" id="openreply-fb-token" class="form-input" placeholder="EAAK..." value="EAAK90182390182">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="save-openreply-config-btn" class="btn btn-primary" style="margin-top:10px;">💾 Save Channel Connections</button>
       </div>
     </div>
   </div>

@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loadWarmupStatus();
       } else if (targetTabId === "openreply-tab-view") {
         loadOpenReplyMessages();
+        loadOpenReplyConfig();
       } else if (targetTabId === "sheets-tab-view") {
         loadSheetsConfig();
       } else if (targetTabId === "analytics-tab-view") {
@@ -86,7 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
         checkedRoles.push(cb.value);
       });
 
-      // UI Loading state
       searchBtn.disabled = true;
       btnSpinner.classList.remove("hidden");
       btnText.textContent = "Scanning decision-makers...";
@@ -178,7 +178,6 @@ document.addEventListener("DOMContentLoaded", () => {
       leadsContainer.appendChild(card);
     });
 
-    // Attach row button listeners
     document.querySelectorAll(".intel-btn").forEach(btn => {
       btn.addEventListener("click", (e) => {
         const comp = e.currentTarget.getAttribute("data-company");
@@ -219,13 +218,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  if (openAccountsModalBtn) {
-    openAccountsModalBtn.addEventListener("click", openAccountsModal);
-  }
-
-  if (headerOpenAccountsBtn) {
-    headerOpenAccountsBtn.addEventListener("click", openAccountsModal);
-  }
+  if (openAccountsModalBtn) openAccountsModalBtn.addEventListener("click", openAccountsModal);
+  if (headerOpenAccountsBtn) headerOpenAccountsBtn.addEventListener("click", openAccountsModal);
 
   if (closeAccountsModalBtn && accountsModal) {
     closeAccountsModalBtn.addEventListener("click", () => accountsModal.classList.add("hidden"));
@@ -421,6 +415,156 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- WARMUP SETUP MODAL LOGIC ---
+  const warmupModal = document.getElementById("warmup-modal");
+  const openWarmupModalBtn = document.getElementById("open-warmup-modal-btn");
+  const closeWarmupModalBtn = document.getElementById("close-warmup-modal");
+  const warmupDomainInput = document.getElementById("warmup-domain-input");
+  const warmupEmailInput = document.getElementById("warmup-email-input");
+  const warmupDailyLimitInput = document.getElementById("warmup-daily-limit-input");
+  const warmupRampSelect = document.getElementById("warmup-ramp-select");
+  const saveWarmupConfigBtn = document.getElementById("save-warmup-config-btn");
+
+  if (openWarmupModalBtn && warmupModal) {
+    openWarmupModalBtn.addEventListener("click", () => {
+      warmupModal.classList.remove("hidden");
+    });
+  }
+
+  if (closeWarmupModalBtn && warmupModal) {
+    closeWarmupModalBtn.addEventListener("click", () => warmupModal.classList.add("hidden"));
+    warmupModal.addEventListener("click", (e) => {
+      if (e.target === warmupModal) warmupModal.classList.add("hidden");
+    });
+  }
+
+  if (saveWarmupConfigBtn) {
+    saveWarmupConfigBtn.addEventListener("click", async () => {
+      const domain = warmupDomainInput.value.trim();
+      const email = warmupEmailInput.value.trim();
+      const limit = parseInt(warmupDailyLimitInput.value, 10) || 50;
+      const ramp = warmupRampSelect.value;
+
+      if (!domain) {
+        alert("Please enter a target domain.");
+        return;
+      }
+
+      saveWarmupConfigBtn.disabled = true;
+      saveWarmupConfigBtn.textContent = "Saving...";
+
+      try {
+        const res = await fetch("/api/mailflare/warmup/config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            domain: domain,
+            sending_email: email,
+            target_daily_limit: limit,
+            ramp_speed: ramp
+          })
+        });
+
+        if (!res.ok) throw new Error("Failed to save warmup config");
+
+        alert(`Domain Warmup configured for ${domain}!`);
+        warmupModal.classList.add("hidden");
+        loadWarmupStatus();
+      } catch (err) {
+        alert("Error saving warmup settings.");
+      } finally {
+        saveWarmupConfigBtn.disabled = false;
+        saveWarmupConfigBtn.textContent = "💾 Save Warmup Settings";
+      }
+    });
+  }
+
+  // --- OPENREPLY CHANNEL MODAL LOGIC ---
+  const openreplyModal = document.getElementById("openreply-modal");
+  const openOpenreplyModalBtn = document.getElementById("open-openreply-modal-btn");
+  const closeOpenreplyModalBtn = document.getElementById("close-openreply-modal");
+  const openreplyIgHandle = document.getElementById("openreply-ig-handle");
+  const openreplyIgToken = document.getElementById("openreply-ig-token");
+  const openreplyWaPhone = document.getElementById("openreply-wa-phone");
+  const openreplyWaToken = document.getElementById("openreply-wa-token");
+  const openreplyFbPage = document.getElementById("openreply-fb-page");
+  const openreplyFbToken = document.getElementById("openreply-fb-token");
+  const saveOpenreplyConfigBtn = document.getElementById("save-openreply-config-btn");
+
+  if (openOpenreplyModalBtn && openreplyModal) {
+    openOpenreplyModalBtn.addEventListener("click", () => {
+      openreplyModal.classList.remove("hidden");
+      loadOpenReplyConfig();
+    });
+  }
+
+  if (closeOpenreplyModalBtn && openreplyModal) {
+    closeOpenreplyModalBtn.addEventListener("click", () => openreplyModal.classList.add("hidden"));
+    openreplyModal.addEventListener("click", (e) => {
+      if (e.target === openreplyModal) openreplyModal.classList.add("hidden");
+    });
+  }
+
+  async function loadOpenReplyConfig() {
+    try {
+      const res = await fetch("/api/openreply/config");
+      const data = await res.json();
+      const channels = data.channels || {};
+
+      if (channels.instagram && openreplyIgHandle) {
+        openreplyIgHandle.value = channels.instagram.account || "";
+      }
+      if (channels.whatsapp && openreplyWaPhone) {
+        openreplyWaPhone.value = channels.whatsapp.phone || "";
+      }
+      if (channels.facebook && openreplyFbPage) {
+        openreplyFbPage.value = channels.facebook.page || "";
+      }
+    } catch (err) {
+      console.error("Error loading OpenReply config:", err);
+    }
+  }
+
+  if (saveOpenreplyConfigBtn) {
+    saveOpenreplyConfigBtn.addEventListener("click", async () => {
+      const igHandle = openreplyIgHandle.value.trim();
+      const igToken = openreplyIgToken.value.trim();
+      const waPhone = openreplyWaPhone.value.trim();
+      const waToken = openreplyWaToken.value.trim();
+      const fbPage = openreplyFbPage.value.trim();
+      const fbToken = openreplyFbToken.value.trim();
+
+      saveOpenreplyConfigBtn.disabled = true;
+      saveOpenreplyConfigBtn.textContent = "Saving...";
+
+      try {
+        const res = await fetch("/api/openreply/config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ig_handle: igHandle,
+            ig_token: igToken,
+            wa_phone: waPhone,
+            wa_token: waToken,
+            fb_page: fbPage,
+            fb_token: fbToken
+          })
+        });
+
+        if (!res.ok) throw new Error("Failed to save channel credentials");
+
+        alert("Multi-Channel Messaging credentials saved successfully!");
+        openreplyModal.classList.add("hidden");
+        loadOpenReplyMessages();
+      } catch (err) {
+        alert("Error saving channel connections.");
+      } finally {
+        saveOpenreplyConfigBtn.disabled = false;
+        saveOpenreplyConfigBtn.textContent = "💾 Save Channel Connections";
+      }
+    });
+  }
+
   // --- MAILFLARE INBOX & AUTO-REPLY LOGIC ---
   const threadList = document.getElementById("thread-list");
   const noThreadSelected = document.getElementById("no-thread-selected");
@@ -587,7 +731,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (healthScoreVal) healthScoreVal.textContent = `${status.deliverability_health_score || 96} / 100`;
       if (placementRateVal) placementRateVal.textContent = `${status.inbox_placement_rate || 98.4}%`;
-      if (dailyVolVal) dailyVolVal.textContent = `${status.warmup_emails_sent_today || 18} / 25`;
+      if (dailyVolVal) dailyVolVal.textContent = `${status.warmup_emails_sent_today || 18} / ${status.target_daily_limit || 50}`;
       if (spamRescuedVal) spamRescuedVal.textContent = `${status.spam_rescued_count || 3} Emails`;
 
       if (warmupStatusLabel && toggleWarmupBtn) {
@@ -601,6 +745,10 @@ document.addEventListener("DOMContentLoaded", () => {
           toggleWarmupBtn.textContent = "Resume Warmup";
         }
       }
+
+      if (status.domain && warmupDomainInput) warmupDomainInput.value = status.domain;
+      if (status.sending_email && warmupEmailInput) warmupEmailInput.value = status.sending_email;
+      if (status.target_daily_limit && warmupDailyLimitInput) warmupDailyLimitInput.value = status.target_daily_limit;
     } catch (err) {
       console.error("Failed to load warmup status:", err);
     }

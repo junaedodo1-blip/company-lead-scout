@@ -263,6 +263,14 @@ def generate_smart_reply(thread_id: str = Query(...)):
     }
 
 
+class WarmupConfigReq(BaseModel):
+    domain: Optional[str] = None
+    sending_email: Optional[str] = None
+    target_daily_limit: Optional[int] = None
+    ramp_speed: Optional[str] = None
+    active: Optional[bool] = None
+
+
 @app.get("/api/mailflare/warmup/status")
 def get_warmup_status():
     return warmup_engine.get_status()
@@ -278,6 +286,11 @@ def update_warmup_status(req: WarmupUpdateRequest):
     return warmup_engine.update_status(updates)
 
 
+@app.post("/api/mailflare/warmup/config")
+def update_warmup_config(req: WarmupConfigReq):
+    return warmup_engine.update_config(req.dict())
+
+
 @app.post("/api/mailflare/webhook")
 def handle_mailflare_webhook(payload: dict):
     return mailflare.handle_webhook_event(payload)
@@ -288,6 +301,27 @@ def handle_mailflare_webhook(payload: dict):
 class OpenReplyChannelToggle(BaseModel):
     channel: str
     active: bool
+
+class OpenReplyConfigReq(BaseModel):
+    ig_handle: Optional[str] = None
+    ig_token: Optional[str] = None
+    ig_active: Optional[bool] = None
+    wa_phone: Optional[str] = None
+    wa_token: Optional[str] = None
+    wa_active: Optional[bool] = None
+    fb_page: Optional[str] = None
+    fb_token: Optional[str] = None
+    fb_active: Optional[bool] = None
+
+
+@app.get("/api/openreply/config")
+def get_openreply_config():
+    return {"channels": openreply.get_channels()}
+
+
+@app.post("/api/openreply/config")
+def update_openreply_config(req: OpenReplyConfigReq):
+    return {"channels": openreply.update_channels_config(req.dict())}
 
 class OpenReplyMessageReq(BaseModel):
     thread_id: str
