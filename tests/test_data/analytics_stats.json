@@ -1,0 +1,31 @@
+{
+  "funnel": {
+    "discovered_leads": 142,
+    "outreach_sent": 86,
+    "replies_received": 29,
+    "meetings_booked": 9,
+    "pipeline_value_usd": 18500
+  },
+  "channel_performance": {
+    "email": {
+      "sent": 48,
+      "replies": 14,
+      "conversion_rate": 29.1
+    },
+    "instagram": {
+      "sent": 18,
+      "replies": 7,
+      "conversion_rate": 38.8
+    },
+    "whatsapp": {
+      "sent": 12,
+      "replies": 6,
+      "conversion_rate": 50.0
+    },
+    "facebook": {
+      "sent": 8,
+      "replies": 2,
+      "conversion_rate": 25.0
+    }
+  }
+}

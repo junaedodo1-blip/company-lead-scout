@@ -1,0 +1,26 @@
+{
+  "active": true,
+  "domain": "cielvisuals.com",
+  "sending_email": "outreach@cielvisuals.com",
+  "days_running": 7,
+  "current_daily_limit": 25,
+  "target_daily_limit": 50,
+  "warmup_emails_sent_today": 18,
+  "inbox_placement_rate": 98.4,
+  "spam_rescued_count": 3,
+  "deliverability_health_score": 96,
+  "dns_records": {
+    "spf": {
+      "valid": true,
+      "record": "v=spf1 include:_spf.mx.cloudflare.net ~all"
+    },
+    "dkim": {
+      "valid": true,
+      "record": "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQ..."
+    },
+    "dmarc": {
+      "valid": true,
+      "record": "v=DMARC1; p=none; rua=mailto:dmarc-reports@cielvisuals.com"
+    }
+  }
+}
