@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Target Company Decision-Maker & LinkedIn Scout</title>
+  <title>Target Company Decision-Maker & Lead Scout Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,75 +17,202 @@
         <div class="brand-logo">🎯</div>
         <div class="brand-title">CompanyLead<span>Scout</span></div>
       </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="scout-tab-view">🎯 Lead Scout</button>
+        <button class="nav-tab" data-tab="mailflare-tab-view">📬 Mailflare Inbox</button>
+        <button class="nav-tab" data-tab="warmup-tab-view">🔥 Email Warmup</button>
+      </nav>
+
       <div class="header-actions">
         <span class="status-badge" id="status-badge"><span class="pulse"></span> Engine Ready</span>
       </div>
     </header>
 
-    <!-- Main Content Grid -->
-    <main class="main-grid">
-      <!-- Left Panel: Input & Settings -->
-      <section class="card input-card">
-        <h2>Target Companies</h2>
-        <p class="subtitle">Enter target company names or domain names (one per line):</p>
-        
-        <textarea id="company-input" placeholder="e.g.&#10;Acme Corp&#10;Stripe&#10;anthropic.com&#10;Vanguard Accounting"></textarea>
+    <!-- TAB 1: LEAD SCOUT -->
+    <main class="tab-view active" id="scout-tab-view">
+      <div class="main-grid">
+        <!-- Left Panel: Input & Settings -->
+        <section class="card input-card">
+          <h2>Target Companies</h2>
+          <p class="subtitle">Enter target company names or domain names (one per line):</p>
+          
+          <textarea id="company-input" placeholder="e.g.&#10;Acme Corp&#10;Stripe&#10;bproperty.com&#10;Vanguard Accounting"></textarea>
 
-        <div class="form-group">
-          <label>Max Decision Makers per Company</label>
-          <input type="number" id="max-results" value="5" min="1" max="10">
-        </div>
-
-        <div class="form-group">
-          <label>Target Role Criteria</label>
-          <div class="roles-pills" id="roles-pills">
-            <label class="pill active"><input type="checkbox" value="CEO" checked> CEO / Founder</label>
-            <label class="pill active"><input type="checkbox" value="COO" checked> COO / Operations</label>
-            <label class="pill active"><input type="checkbox" value="Procurement Officer" checked> Procurement Officer</label>
-            <label class="pill active"><input type="checkbox" value="Head of Marketing and Sales" checked> Head of Marketing & Sales</label>
-            <label class="pill active"><input type="checkbox" value="Marketing Officer" checked> Marketing Officer</label>
-            <label class="pill active"><input type="checkbox" value="Sales Officer" checked> Sales Officer</label>
-            <label class="pill active"><input type="checkbox" value="Controller" checked> Controller / Finance</label>
-            <label class="pill"><input type="checkbox" value="President"> President / Owner</label>
+          <div class="form-group">
+            <label>Max Decision Makers per Company</label>
+            <input type="number" id="max-results" value="5" min="1" max="10">
           </div>
-        </div>
 
-        <div class="button-group" style="display:flex; gap:10px; margin-top:15px;">
-          <button id="search-btn" class="btn btn-primary" style="flex:1;">
-            <span id="btn-text">🔍 Find Decision Makers</span>
-            <div class="spinner hidden" id="btn-spinner"></div>
-          </button>
-          <button id="quick-intel-btn" class="btn btn-secondary">
-            🛡️ 360° Intel Audit
-          </button>
-        </div>
+          <div class="form-group">
+            <label>Target Role Criteria</label>
+            <div class="roles-pills" id="roles-pills">
+              <label class="pill active"><input type="checkbox" value="CEO" checked> CEO / Founder</label>
+              <label class="pill active"><input type="checkbox" value="COO" checked> COO / Operations</label>
+              <label class="pill active"><input type="checkbox" value="Procurement Officer" checked> Procurement Officer</label>
+              <label class="pill active"><input type="checkbox" value="Head of Marketing and Sales" checked> Head of Marketing & Sales</label>
+              <label class="pill active"><input type="checkbox" value="Marketing Officer" checked> Marketing Officer</label>
+              <label class="pill active"><input type="checkbox" value="Sales Officer" checked> Sales Officer</label>
+              <label class="pill active"><input type="checkbox" value="Controller" checked> Controller / Finance</label>
+              <label class="pill"><input type="checkbox" value="President"> President / Owner</label>
+            </div>
+          </div>
 
-      </section>
+          <div class="button-group" style="display:flex; gap:10px; margin-top:15px;">
+            <button id="search-btn" class="btn btn-primary" style="flex:1;">
+              <span id="btn-text">🔍 Find Decision Makers</span>
+              <div class="spinner hidden" id="btn-spinner"></div>
+            </button>
+            <button id="quick-intel-btn" class="btn btn-secondary">
+              🛡️ 360° Intel Audit
+            </button>
+          </div>
+        </section>
 
-      <!-- Right Panel: Results & Leads -->
-      <section class="card results-card">
-        <div class="results-header">
+        <!-- Right Panel: Results & Leads -->
+        <section class="card results-card">
+          <div class="results-header">
+            <h2>Discovered Leads & Decision Makers</h2>
+            <div class="header-tools">
+              <span class="count-badge" id="leads-count">0 Leads Found</span>
+              <button id="export-btn" class="btn btn-secondary hidden">📥 Export CSV</button>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">🔎</div>
+            <h3>No Decision Makers Loaded</h3>
+            <p>Enter target companies on the left to discover verified C-level executives, sales leaders, and decision-maker profiles.</p>
+          </div>
+
+          <!-- Results Container -->
+          <div class="leads-grid hidden" id="leads-container"></div>
+        </section>
+      </div>
+    </main>
+
+    <!-- TAB 2: MAILFLARE INBOX & AUTO-REPLY -->
+    <main class="tab-view hidden" id="mailflare-tab-view">
+      <div class="inbox-layout">
+        <!-- Thread Sidebar -->
+        <aside class="card thread-sidebar">
+          <div class="sidebar-header">
+            <h3>📬 Conversations</h3>
+            <span class="pulse-status">Live Webhooks Active</span>
+          </div>
+          <div class="thread-list" id="thread-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </aside>
+
+        <!-- Active Thread Area -->
+        <section class="card thread-content-panel">
+          <div id="no-thread-selected" class="empty-state">
+            <div class="empty-icon">📩</div>
+            <h3>Select a Conversation</h3>
+            <p>Click an incoming lead response on the left to view message history and trigger AI auto-replies.</p>
+          </div>
+
+          <div id="active-thread-view" class="active-thread-view hidden">
+            <!-- Thread Header -->
+            <div class="thread-main-header">
+              <div>
+                <h3 id="active-lead-name">Lead Name</h3>
+                <p id="active-lead-meta" class="subtitle">Company • Email</p>
+              </div>
+              <span id="active-intent-badge" class="intent-badge">Pending</span>
+            </div>
+
+            <!-- Messages Timeline -->
+            <div class="messages-timeline" id="messages-timeline"></div>
+
+            <!-- AI Smart Reply Banner -->
+            <div class="ai-reply-box" id="ai-reply-box">
+              <div class="ai-reply-header">
+                <span>🤖 AI Suggested Reply (Email Intelligence Engine)</span>
+                <button class="btn btn-small" id="generate-smart-reply-btn">⚡ Regenerate</button>
+              </div>
+              <p id="ai-reply-text" class="ai-reply-text"></p>
+              <button class="btn btn-secondary btn-small" id="apply-smart-reply-btn">Use This Reply</button>
+            </div>
+
+            <!-- Reply Composer -->
+            <div class="reply-composer">
+              <textarea id="reply-input" placeholder="Type your reply to this lead..."></textarea>
+              <div class="composer-actions">
+                <button class="btn btn-primary" id="send-reply-btn">✉️ Send Reply</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- TAB 3: EMAIL WARMUP DASHBOARD -->
+    <main class="tab-view hidden" id="warmup-tab-view">
+      <div class="warmup-dashboard card">
+        <div class="warmup-header">
           <div>
-            <h2>Discovered Contacts (<span id="lead-count">0</span>)</h2>
-            <p class="subtitle">CEOs, Founders & Key Decision Makers on LinkedIn</p>
+            <h2>🔥 Domain Email Warmup & Deliverability Health</h2>
+            <p class="subtitle">Automated peer-to-peer sending ramp-up & spam rescue engine for <strong>cielvisuals.com</strong></p>
           </div>
-          <button id="export-csv-btn" class="btn btn-secondary" disabled>
-            📥 Export CSV
-          </button>
+          <div class="warmup-toggle-box">
+            <span id="warmup-status-label" class="badge-active">Warmup Active</span>
+            <button id="toggle-warmup-btn" class="btn btn-secondary">Pause Warmup</button>
+          </div>
         </div>
 
-        <!-- Empty State -->
-        <div class="empty-state" id="empty-state">
-          <div class="empty-icon">🏢</div>
-          <h3>No leads discovered yet</h3>
-          <p>Enter target companies on the left and click "Find Decision Makers" to start scanning LinkedIn profiles.</p>
+        <!-- Metrics Overview Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Deliverability Health Score</div>
+            <div class="metric-value text-green" id="health-score-val">96 / 100</div>
+            <div class="metric-sub">Optimal (Zero Blacklists)</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Inbox Placement Rate</div>
+            <div class="metric-value" id="placement-rate-val">98.4%</div>
+            <div class="metric-sub">Spam Rescue Active</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Daily Sending Volume</div>
+            <div class="metric-value" id="daily-vol-val">18 / 25</div>
+            <div class="metric-sub">Target: 50 emails/day</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Spam Rescued Today</div>
+            <div class="metric-value text-gold" id="spam-rescued-val">3 Emails</div>
+            <div class="metric-sub">Moved to Primary Inbox</div>
+          </div>
         </div>
 
-        <!-- Leads Table / Grid -->
-        <div class="leads-list hidden" id="leads-list">
-          <!-- Lead Items Injected by JavaScript -->
+        <!-- DNS Compliance Status -->
+        <div class="dns-compliance-section">
+          <h3>🛡️ Domain Deliverability & DNS Records</h3>
+          <div class="dns-grid">
+            <div class="dns-item">
+              <span class="dns-name">SPF Record</span>
+              <span class="badge-success">Valid</span>
+              <code class="dns-val">v=spf1 include:_spf.mx.cloudflare.net ~all</code>
+            </div>
+            <div class="dns-item">
+              <span class="dns-name">DKIM Key</span>
+              <span class="badge-success">Valid</span>
+              <code class="dns-val">v=DKIM1; k=rsa; p=MIGfMA0GCSqG...</code>
+            </div>
+            <div class="dns-item">
+              <span class="dns-name">DMARC Policy</span>
+              <span class="badge-success">Valid</span>
+              <code class="dns-val">v=DMARC1; p=none; rua=mailto:dmarc-reports@cielvisuals.com</code>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
     </main>
   </div>
 
@@ -93,10 +220,12 @@
   <div class="modal-overlay hidden" id="outreach-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 id="modal-lead-name">Outreach Copy</h3>
+        <h3 id="modal-lead-name">Outreach Sequence</h3>
         <button class="close-btn" id="close-modal">&times;</button>
       </div>
       <div class="modal-body">
+        <p class="modal-sub" id="modal-lead-title"></p>
+
         <div class="copy-box">
           <div class="copy-header">
             <span>LinkedIn Connection Note (&lt;300 chars)</span>
@@ -108,7 +237,10 @@
         <div class="copy-box">
           <div class="copy-header">
             <span>InMail / Cold Email Template</span>
-            <button class="copy-btn" id="copy-inmail-btn">📋 Copy InMail</button>
+            <div class="outreach-btn-group">
+              <button class="copy-btn" id="copy-inmail-btn">📋 Copy Draft</button>
+              <button class="btn btn-primary btn-small" id="send-direct-email-btn">✉️ Dispatch Email via Mailflare</button>
+            </div>
           </div>
           <h4 id="inmail-subject" class="inmail-subject"></h4>
           <p id="inmail-body" class="copy-text pre-wrap"></p>
@@ -145,6 +277,5 @@
   </div>
 
   <script src="/static/app.js"></script>
-
 </body>
 </html>

@@ -505,3 +505,324 @@ input[type="number"] {
   overflow: hidden;
 }
 
+
+/* Nav Tabs */
+.nav-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.nav-tab {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+}
+
+.nav-tab.active {
+  background: var(--primary-gradient);
+  color: #040810;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(0, 242, 254, 0.2);
+}
+
+.tab-view.hidden {
+  display: none !important;
+}
+
+/* Mailflare Inbox */
+.inbox-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  min-height: 600px;
+}
+
+.thread-sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.pulse-status {
+  font-size: 10px;
+  color: var(--accent-cyan);
+  background: rgba(0, 242, 254, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.thread-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: 520px;
+}
+
+.thread-item {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.thread-item:hover, .thread-item.active {
+  background: rgba(79, 172, 254, 0.12);
+  border-color: var(--accent-blue);
+}
+
+.thread-lead-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.thread-comp {
+  font-size: 11px;
+  color: var(--accent-cyan);
+}
+
+.thread-subj {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4px;
+}
+
+.intent-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 242, 254, 0.15);
+  color: var(--accent-cyan);
+}
+
+/* Active Thread Panel */
+.thread-content-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.active-thread-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 15px;
+}
+
+.thread-main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.messages-timeline {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  max-height: 300px;
+  padding-right: 5px;
+}
+
+.msg-bubble {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  position: relative;
+}
+
+.msg-bubble.outbound {
+  align-self: flex-end;
+  background: rgba(79, 172, 254, 0.2);
+  border: 1px solid rgba(79, 172, 254, 0.4);
+  color: var(--text-main);
+}
+
+.msg-bubble.inbound {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.msg-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.ai-reply-box {
+  background: rgba(0, 242, 254, 0.08);
+  border: 1px solid var(--accent-cyan);
+  padding: 12px;
+  border-radius: var(--radius-md);
+}
+
+.ai-reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin-bottom: 6px;
+}
+
+.ai-reply-text {
+  font-size: 12px;
+  color: var(--text-main);
+  white-space: pre-wrap;
+  margin-bottom: 8px;
+}
+
+.reply-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reply-composer textarea {
+  min-height: 70px;
+  background: rgba(10, 14, 26, 0.8);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 10px;
+  border-radius: var(--radius-md);
+}
+
+.composer-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Email Warmup Dashboard */
+.warmup-dashboard {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.warmup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 15px;
+}
+
+.warmup-toggle-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge-active {
+  background: rgba(77, 255, 136, 0.15);
+  color: #51cf66;
+  border: 1px solid rgba(77, 255, 136, 0.4);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.metric-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  border-radius: var(--radius-md);
+}
+
+.metric-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 6px 0;
+}
+
+.metric-sub {
+  font-size: 11px;
+  color: var(--accent-cyan);
+}
+
+.text-green { color: #51cf66 !important; }
+.text-gold { color: #fcc419 !important; }
+
+.dns-compliance-section {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  border-radius: var(--radius-md);
+}
+
+.dns-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.dns-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.dns-name {
+  width: 100px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.dns-val {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--accent-cyan);
+  font-family: monospace;
+  font-size: 11px;
+  flex: 1;
+}

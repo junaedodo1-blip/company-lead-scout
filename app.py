@@ -14,6 +14,9 @@ from core.outreach_generator import OutreachGenerator
 from core.company_enricher import CompanyEnricher
 from core.company_intel import CompanyIntelScout
 from core.vulnerability_analyzer import VulnerabilityAnalyzer
+from core.mailflare_engine import MailflareEngine
+from core.email_intelligence import EmailIntelligence
+from core.email_warmup import EmailWarmupEngine
 
 app = FastAPI(title="Target Company Decision-Maker & LinkedIn Finder API")
 
@@ -28,6 +31,8 @@ app.add_middleware(
 
 finder = LinkedInFinder()
 intel_scout = CompanyIntelScout()
+mailflare = MailflareEngine()
+warmup_engine = EmailWarmupEngine()
 
 
 class SearchRequest(BaseModel):
@@ -108,6 +113,113 @@ def export_csv(leads: List[dict]):
     )
     response.headers["Content-Disposition"] = "attachment; filename=target_company_leads.csv"
     return response
+
+
+# --- MAILFLARE INBOX & AUTOMATION ENDPOINTS ---
+
+class OutreachEmailRequest(BaseModel):
+    to_email: str
+    subject: str
+    body: str
+    lead_name: Optional[str] = ""
+    company: Optional[str] = ""
+
+class ThreadReplyRequest(BaseModel):
+    thread_id: str
+    body: str
+
+class WarmupUpdateRequest(BaseModel):
+    active: Optional[bool] = None
+    target_daily_limit: Optional[int] = None
+
+
+@app.get("/api/mailflare/threads")
+def get_mailflare_threads():
+    return {"threads": mailflare.get_threads()}
+
+
+@app.get("/api/mailflare/threads/{thread_id}")
+def get_mailflare_thread(thread_id: str):
+    thread = mailflare.get_thread(thread_id)
+    if not thread:
+        raise HTTPException(status_code=404, detail="Thread not found")
+    return thread
+
+
+@app.post("/api/mailflare/send")
+def send_outreach_email(req: OutreachEmailRequest):
+    if not req.to_email or "@" not in req.to_email:
+        raise HTTPException(status_code=400, detail="Valid recipient email required")
+    res = mailflare.send_outreach_email(
+        to_email=req.to_email,
+        subject=req.subject,
+        body=req.body,
+        lead_name=req.lead_name,
+        company=req.company
+    )
+    return res
+
+
+@app.post("/api/mailflare/reply")
+def reply_to_thread(req: ThreadReplyRequest):
+    if not req.thread_id or not req.body:
+        raise HTTPException(status_code=400, detail="Thread ID and message body required")
+    res = mailflare.add_reply(thread_id=req.thread_id, body=req.body, direction="outbound")
+    if not res.get("success"):
+        raise HTTPException(status_code=404, detail=res.get("error", "Failed to add reply"))
+    return res
+
+
+@app.post("/api/mailflare/smart-reply")
+def generate_smart_reply(thread_id: str = Query(...)):
+    thread = mailflare.get_thread(thread_id)
+    if not thread or not thread.get("messages"):
+        raise HTTPException(status_code=404, detail="Thread or messages not found")
+
+    last_inbound = None
+    for msg in reversed(thread["messages"]):
+        if msg["direction"] == "inbound":
+            last_inbound = msg
+            break
+
+    if not last_inbound:
+        last_inbound = thread["messages"][-1]
+
+    clean_body = EmailIntelligence.strip_quoted_reply(last_inbound["body"])
+    intent_analysis = EmailIntelligence.classify_intent(clean_body)
+    suggested_reply = EmailIntelligence.generate_smart_reply_suggestion(
+        thread_subject=thread["subject"],
+        lead_name=thread["lead_name"],
+        lead_message=clean_body
+    )
+
+    return {
+        "thread_id": thread_id,
+        "lead_name": thread["lead_name"],
+        "intent": intent_analysis,
+        "suggested_reply": suggested_reply
+    }
+
+
+@app.get("/api/mailflare/warmup/status")
+def get_warmup_status():
+    return warmup_engine.get_status()
+
+
+@app.post("/api/mailflare/warmup/status")
+def update_warmup_status(req: WarmupUpdateRequest):
+    updates = {}
+    if req.active is not None:
+        updates["active"] = req.active
+    if req.target_daily_limit is not None:
+        updates["target_daily_limit"] = req.target_daily_limit
+    return warmup_engine.update_status(updates)
+
+
+@app.post("/api/mailflare/webhook")
+def handle_mailflare_webhook(payload: dict):
+    return mailflare.handle_webhook_event(payload)
+
 
 # Mount web frontend static files
 web_dir = os.path.join(os.path.dirname(__file__), "web")

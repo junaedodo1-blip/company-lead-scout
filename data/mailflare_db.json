@@ -1,0 +1,41 @@
+{
+  "threads": [
+    {
+      "thread_id": "thread-demo-1",
+      "lead_name": "Rubyat Sobnom",
+      "lead_email": "rubyat.sobnom@bproperty.com",
+      "company": "Bproperty.com",
+      "subject": "Quick question regarding operations at Bproperty.com",
+      "status": "Meeting Requested",
+      "intent": "High Intent",
+      "last_updated": 1789034242.7384863,
+      "messages": [
+        {
+          "msg_id": "msg-1",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "rubyat.sobnom@bproperty.com",
+          "date": "2026-09-10 10:00:00",
+          "body": "Hi Rubyat,\n\nI reached out after seeing your role as Executive at Bproperty.com.\nWe help high-growth teams automate administrative & lead outreach workflows.\nWould you be open to a brief 10-minute chat next Tuesday?"
+        },
+        {
+          "msg_id": "msg-2",
+          "direction": "inbound",
+          "from": "rubyat.sobnom@bproperty.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-10 11:30:00",
+          "body": "Hi there,\n\nThanks for reaching out. Yes, Tuesday at 2 PM works well for me. Could you send over a calendar invite?\n\nBest,\nRubyat"
+        }
+      ]
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "camp-1",
+      "name": "BD Real Estate Decision Makers",
+      "sent_count": 24,
+      "reply_count": 7,
+      "status": "Active"
+    }
+  ]
+}
