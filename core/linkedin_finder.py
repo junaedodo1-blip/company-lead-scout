@@ -28,12 +28,12 @@ class LinkedInFinder:
         }
 
     def search_ddgs_package(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        """Primary fast search using DDGS Python library."""
+        """Fast primary search using DDGS with strict 4-second timeout."""
         results = []
         if not DDGS:
             return results
         try:
-            with DDGS() as ddgs:
+            with DDGS(timeout=4) as ddgs:
                 ddg_res = list(ddgs.text(query, max_results=max_results * 2))
                 for item in ddg_res:
                     url = item.get("href", "")
@@ -99,35 +99,14 @@ class LinkedInFinder:
         return results
 
     def execute_parallel_search(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        """Runs DDGS library and search fallbacks concurrently."""
-        # First try DDGS library directly (proven 100% working)
+        """Runs DDGS library and Bing search concurrently with 4-second timeout limit."""
+        # 1. Fast direct DDGS
         direct_ddg = self.search_ddgs_package(query, max_results=max_results)
         if direct_ddg:
             return direct_ddg
 
-        # Fallback engines if DDGS yields empty
-        engines = [
-            self.search_google_custom_search,
-            self.search_bing_html,
-        ]
-        
-        combined_results = []
-        seen = set()
-
-        with ThreadPoolExecutor(max_workers=len(engines)) as executor:
-            future_to_engine = {executor.submit(engine, query, max_results): engine for engine in engines}
-            for future in as_completed(future_to_engine, timeout=4):
-                try:
-                    res = future.result()
-                    for item in res:
-                        url = item.get("url")
-                        if url and url not in seen:
-                            seen.add(url)
-                            combined_results.append(item)
-                except Exception:
-                    pass
-
-        return combined_results
+        # 2. Fast Bing fallback
+        return self.search_bing_html(query, max_results=max_results)
 
     def find_decision_makers(self, company_input: str, target_titles: List[str] = None, max_results: int = 5) -> List[Dict[str, Any]]:
         if CompanyEnricher.is_direct_linkedin_url(company_input):
@@ -139,6 +118,7 @@ class LinkedInFinder:
         seen_urls = set()
         leads = []
 
+        # Run query variation
         for query in queries[:2]:
             if len(leads) >= max_results:
                 break
