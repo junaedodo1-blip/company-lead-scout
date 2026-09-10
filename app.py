@@ -56,16 +56,20 @@ def search_leads(req: SearchRequest):
     for comp in req.companies:
         if not comp.strip():
             continue
-        leads = finder.find_decision_makers(
-            comp,
-            target_titles=req.target_titles,
-            max_results=req.max_results_per_company or 5
-        )
-        for l in leads:
-            l = OutreachGenerator.enrich_lead_with_outreach(l)
-            all_leads.append(l)
+        try:
+            leads = finder.find_decision_makers(
+                comp,
+                target_titles=req.target_titles,
+                max_results=req.max_results_per_company or 5
+            )
+            for l in leads:
+                l = OutreachGenerator.enrich_lead_with_outreach(l)
+                all_leads.append(l)
+        except Exception as err:
+            print(f"[app.py Search Error for '{comp}']: {err}")
 
     return {"total": len(all_leads), "leads": all_leads}
+
 
 @app.get("/api/company/intel")
 def get_company_intel(company: str = Query(..., description="Target company name or domain")):

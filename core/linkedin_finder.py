@@ -5,7 +5,6 @@ import urllib.parse
 import requests
 from bs4 import BeautifulSoup
 from typing import List, Dict, Any
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 try:
     from ddgs import DDGS
@@ -19,7 +18,7 @@ from core.company_enricher import CompanyEnricher
 from core.contact_parser import ContactParser
 
 class LinkedInFinder:
-    """Multi-engine concurrent LinkedIn decision-maker scout optimized for 24/7 cloud execution."""
+    """Multi-engine LinkedIn decision-maker scout optimized for 24/7 cloud execution."""
 
     def __init__(self, user_agent: str = None):
         self.headers = {
@@ -28,11 +27,12 @@ class LinkedInFinder:
         }
 
     def search_ddgs_package(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
+        """Primary fast search using DDGS Python library."""
         results = []
         if not DDGS:
             return results
         try:
-            with DDGS(timeout=3) as ddgs:
+            with DDGS(timeout=4) as ddgs:
                 ddg_res = list(ddgs.text(query, max_results=max_results * 2))
                 for item in ddg_res:
                     url = item.get("href", "")
@@ -49,6 +49,7 @@ class LinkedInFinder:
         return results
 
     def search_bing_html(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
+        """Fallback search using Bing HTML scraper."""
         results = []
         try:
             url = f"https://www.bing.com/search?q={urllib.parse.quote(query)}"
@@ -74,30 +75,15 @@ class LinkedInFinder:
             print(f"[LinkedInFinder] Bing Search note: {e}")
         return results
 
-    def execute_parallel_search(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        """Runs Bing and DDGS engines simultaneously in parallel for guaranteed cloud yield."""
-        engines = [
-            self.search_ddgs_package,
-            self.search_bing_html,
-        ]
-        
-        combined_results = []
-        seen = set()
+    def execute_search(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
+        """Executes DDGS search first, fallback to Bing HTML scraper."""
+        # 1. Primary DDGS search
+        results = self.search_ddgs_package(query, max_results=max_results)
+        if results:
+            return results
 
-        with ThreadPoolExecutor(max_workers=len(engines)) as executor:
-            future_to_engine = {executor.submit(engine, query, max_results): engine for engine in engines}
-            for future in as_completed(future_to_engine, timeout=5):
-                try:
-                    res = future.result()
-                    for item in res:
-                        url = item.get("url")
-                        if url and url not in seen:
-                            seen.add(url)
-                            combined_results.append(item)
-                except Exception:
-                    pass
-
-        return combined_results
+        # 2. Bing HTML fallback
+        return self.search_bing_html(query, max_results=max_results)
 
     def find_decision_makers(self, company_input: str, target_titles: List[str] = None, max_results: int = 5) -> List[Dict[str, Any]]:
         if CompanyEnricher.is_direct_linkedin_url(company_input):
@@ -113,7 +99,7 @@ class LinkedInFinder:
             if len(leads) >= max_results:
                 break
 
-            raw_results = self.execute_parallel_search(query, max_results=max_results)
+            raw_results = self.execute_search(query, max_results=max_results)
 
             for item in raw_results:
                 url = item["url"]
