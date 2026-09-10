@@ -147,6 +147,36 @@ class WarmupUpdateRequest(BaseModel):
     active: Optional[bool] = None
     target_daily_limit: Optional[int] = None
 
+class EmailAccountRequest(BaseModel):
+    id: Optional[str] = None
+    email: str
+    sender_name: str
+    smtp_host: str
+    smtp_port: Optional[int] = 587
+    smtp_user: str
+    smtp_pass: str
+    signature: Optional[str] = ""
+    is_default: Optional[bool] = False
+
+
+@app.get("/api/mailflare/accounts")
+def get_email_accounts():
+    return {"accounts": mailflare.get_accounts()}
+
+
+@app.post("/api/mailflare/accounts")
+def add_or_update_email_account(req: EmailAccountRequest):
+    if not req.email or "@" not in req.email:
+        raise HTTPException(status_code=400, detail="Valid email address required")
+    res = mailflare.add_or_update_account(req.dict())
+    return res
+
+
+@app.delete("/api/mailflare/accounts/{acc_id}")
+def delete_email_account(acc_id: str):
+    res = mailflare.delete_account(acc_id)
+    return res
+
 
 @app.get("/api/mailflare/threads")
 def get_mailflare_threads():

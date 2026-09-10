@@ -62,10 +62,100 @@ class MailflareEngine:
                             "reply_count": 7,
                             "status": "Active"
                         }
+                    ],
+                    "accounts": [
+                        {
+                            "id": "acc-default",
+                            "email": "outreach@cielvisuals.com",
+                            "sender_name": "Junaed (Ciel Visuals Outreach)",
+                            "smtp_host": "smtp.mailflare.io",
+                            "smtp_port": 587,
+                            "smtp_user": "outreach@cielvisuals.com",
+                            "smtp_pass": "••••••••••••",
+                            "signature": "Best regards,\nJunaed | Ciel Visuals Outbound",
+                            "is_default": True,
+                            "status": "Connected"
+                        }
                     ]
                 }
                 with open(self.db_file, "w", encoding="utf-8") as f:
                     json.dump(initial_data, f, indent=2)
+
+    def get_accounts(self) -> List[Dict[str, Any]]:
+        db = self._load_db()
+        accounts = db.get("accounts", [])
+        if not accounts:
+            default_acc = {
+                "id": "acc-default",
+                "email": "outreach@cielvisuals.com",
+                "sender_name": "Junaed (Ciel Visuals Outreach)",
+                "smtp_host": "smtp.mailflare.io",
+                "smtp_port": 587,
+                "smtp_user": "outreach@cielvisuals.com",
+                "smtp_pass": "••••••••••••",
+                "signature": "Best regards,\nJunaed | Ciel Visuals Outbound",
+                "is_default": True,
+                "status": "Connected"
+            }
+            accounts = [default_acc]
+            db["accounts"] = accounts
+            self._save_db(db)
+        return accounts
+
+    def add_or_update_account(self, account_data: Dict[str, Any]) -> Dict[str, Any]:
+        with MailflareEngine._lock:
+            with open(self.db_file, "r", encoding="utf-8") as f:
+                db = json.load(f)
+            
+            accounts = db.get("accounts", [])
+            acc_id = account_data.get("id") or f"acc-{uuid.uuid4().hex[:8]}"
+            
+            existing = None
+            for a in accounts:
+                if a["id"] == acc_id or a["email"].lower() == account_data.get("email", "").lower():
+                    existing = a
+                    break
+
+            if account_data.get("is_default"):
+                for a in accounts:
+                    a["is_default"] = False
+
+            new_acc = {
+                "id": acc_id,
+                "email": account_data.get("email", "").strip(),
+                "sender_name": account_data.get("sender_name", "").strip(),
+                "smtp_host": account_data.get("smtp_host", "smtp.gmail.com").strip(),
+                "smtp_port": int(account_data.get("smtp_port", 587)),
+                "smtp_user": account_data.get("smtp_user", "").strip(),
+                "smtp_pass": account_data.get("smtp_pass", "").strip(),
+                "signature": account_data.get("signature", "").strip(),
+                "is_default": account_data.get("is_default", len(accounts) == 0),
+                "status": "Connected"
+            }
+
+            if existing:
+                accounts[accounts.index(existing)] = new_acc
+            else:
+                accounts.append(new_acc)
+
+            db["accounts"] = accounts
+            with open(self.db_file, "w", encoding="utf-8") as f:
+                json.dump(db, f, indent=2)
+
+            return {"success": True, "account": new_acc}
+
+    def delete_account(self, acc_id: str) -> Dict[str, Any]:
+        with MailflareEngine._lock:
+            with open(self.db_file, "r", encoding="utf-8") as f:
+                db = json.load(f)
+            
+            accounts = [a for a in db.get("accounts", []) if a["id"] != acc_id]
+            if accounts and not any(a.get("is_default") for a in accounts):
+                accounts[0]["is_default"] = True
+            db["accounts"] = accounts
+            with open(self.db_file, "w", encoding="utf-8") as f:
+                json.dump(db, f, indent=2)
+            return {"success": True}
 
     def _load_db(self) -> Dict[str, Any]:
         with MailflareEngine._lock:

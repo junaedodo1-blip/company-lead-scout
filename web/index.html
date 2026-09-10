@@ -98,7 +98,18 @@
     </main>
 
     <!-- TAB 2: MAILFLARE INBOX & AUTO-REPLY -->
-    <main class="tab-view hidden" id="mailflare-tab-view">
+    <main class="tab-view hidden" id="mailflare-tab-view" style="display:flex; flex-direction:column; gap:20px;">
+      <div class="card" style="display:flex; flex-direction:row; justify-content:space-between; align-items:center; padding:16px 24px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:24px;">📧</span>
+          <div>
+            <h3 style="font-size:16px; font-weight:700;">Client Outbound Email & Sending Accounts</h3>
+            <p id="active-account-summary" class="subtitle">Active Sender: <strong>outreach@cielvisuals.com</strong> (Mailflare SMTP Connected)</p>
+          </div>
+        </div>
+        <button id="open-accounts-modal-btn" class="btn btn-primary btn-small">⚙️ Setup Client Emails & SMTP</button>
+      </div>
+
       <div class="inbox-layout">
         <!-- Thread Sidebar -->
         <aside class="card thread-sidebar">
@@ -394,6 +405,70 @@
           <div class="intel-section">
             <h4>⚔️ Direct Competitors & Positioning</h4>
             <div id="intel-competitors" class="competitors-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <!-- Client Email Accounts Modal -->
+  <div class="modal-overlay hidden" id="accounts-modal">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <h3>⚙️ Setup Client Sending Emails & SMTP Credentials</h3>
+        <button class="close-btn" id="close-accounts-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="subtitle" style="margin-bottom:15px;">Configure client domain emails, custom SMTP/IMAP servers, and signatures for automated outreach dispatch.</p>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+          <!-- Add / Edit Account Form -->
+          <div class="sync-card">
+            <h4 style="font-size:14px; color:var(--accent-blue);">➕ Add / Edit Sending Account</h4>
+            <div class="form-group">
+              <label>Sender Display Name</label>
+              <input type="text" id="acc-sender-name" class="form-input" placeholder="e.g. Alex Rivera">
+            </div>
+            <div class="form-group">
+              <label>Sender Email Address</label>
+              <input type="email" id="acc-email" class="form-input" placeholder="e.g. alex@clientdomain.com">
+            </div>
+            <div class="form-group">
+              <label>SMTP Provider Preset</label>
+              <select id="acc-preset" class="form-input">
+                <option value="custom">Custom SMTP / Cloudflare Mailflare</option>
+                <option value="google">Google Workspace / Gmail (smtp.gmail.com)</option>
+                <option value="microsoft">Microsoft 365 / Outlook (smtp.office365.com)</option>
+                <option value="mailgun">Mailgun Gateway (smtp.mailgun.org)</option>
+              </select>
+            </div>
+            <div class="form-group" style="display:flex; gap:10px;">
+              <div style="flex:2;">
+                <label>SMTP Host</label>
+                <input type="text" id="acc-smtp-host" class="form-input" placeholder="smtp.gmail.com" value="smtp.mailflare.io">
+              </div>
+              <div style="flex:1;">
+                <label>Port</label>
+                <input type="number" id="acc-smtp-port" class="form-input" placeholder="587" value="587">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>SMTP Username / Login</label>
+              <input type="text" id="acc-smtp-user" class="form-input" placeholder="alex@clientdomain.com">
+            </div>
+            <div class="form-group">
+              <label>SMTP Password / App Password</label>
+              <input type="password" id="acc-smtp-pass" class="form-input" placeholder="••••••••••••">
+            </div>
+            <div class="form-group">
+              <label>Email Signature (Text or HTML)</label>
+              <textarea id="acc-signature" class="form-input" style="height:60px;" placeholder="Best regards, Alex | Client Operations"></textarea>
+            </div>
+            <button id="save-account-btn" class="btn btn-primary" style="margin-top:10px;">💾 Save Email Account</button>
+          </div>
+
+          <!-- Configured Accounts List -->
+          <div class="sync-card">
+            <h4 style="font-size:14px; color:var(--accent-blue);">📋 Configured Sending Accounts</h4>
+            <div id="accounts-list-container" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;"></div>
           </div>
         </div>
       </div>
