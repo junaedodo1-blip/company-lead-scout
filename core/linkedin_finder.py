@@ -25,6 +25,7 @@ class LinkedInFinder:
             "User-Agent": user_agent or "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
             "Accept-Language": "en-US,en;q=0.9",
         }
+        self.cache = {}
 
     def search_serpapi(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
         """SerpAPI integration for 100% reliable cloud Google search results."""
@@ -121,23 +122,24 @@ class LinkedInFinder:
         return results
 
     def execute_search(self, query: str, max_results: int = 5) -> List[Dict[str, str]]:
-        # 1. SerpAPI (if SERPAPI_KEY is set)
-        res = self.search_serpapi(query, max_results=max_results)
-        if res:
-            return res
+        if query in self.cache:
+            return self.cache[query]
 
-        # 2. Google Custom Search (if GOOGLE_API_KEY is set)
+        # 1. Google Custom Search API
         res = self.search_google_custom_search(query, max_results=max_results)
-        if res:
-            return res
+        if not res:
+            # 2. SerpAPI
+            res = self.search_serpapi(query, max_results=max_results)
+        if not res:
+            # 3. DDGS Real Package
+            res = self.search_ddgs_package(query, max_results=max_results)
+        if not res:
+            # 4. Bing Real Scraper
+            res = self.search_bing_html(query, max_results=max_results)
 
-        # 3. DDGS Real Package
-        res = self.search_ddgs_package(query, max_results=max_results)
         if res:
-            return res
-
-        # 4. Bing Real Scraper
-        return self.search_bing_html(query, max_results=max_results)
+            self.cache[query] = res
+        return res
 
     def find_decision_makers(self, company_input: str, target_titles: List[str] = None, max_results: int = 5) -> List[Dict[str, Any]]:
         # Handle direct pasted LinkedIn profile URL

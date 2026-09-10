@@ -52,15 +52,18 @@ def search_leads(req: SearchRequest):
     if not req.companies:
         raise HTTPException(status_code=400, detail="Companies list cannot be empty.")
     
+    # Sanitize and cap to max 10 companies per request to protect against abuse
+    clean_companies = [c.strip()[:100] for c in req.companies if c.strip()][:10]
+    if not clean_companies:
+        raise HTTPException(status_code=400, detail="No valid company names provided.")
+
     all_leads = []
-    for comp in req.companies:
-        if not comp.strip():
-            continue
+    for comp in clean_companies:
         try:
             leads = finder.find_decision_makers(
                 comp,
                 target_titles=req.target_titles,
-                max_results=req.max_results_per_company or 5
+                max_results=min(req.max_results_per_company or 5, 20)
             )
             for l in leads:
                 l = OutreachGenerator.enrich_lead_with_outreach(l)
