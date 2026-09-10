@@ -1,6 +1,846 @@
 {
   "threads": [
     {
+      "thread_id": "thread-a0ddef9b",
+      "lead_name": "Lead 29",
+      "lead_email": "lead_29@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 29",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.6559336,
+      "messages": [
+        {
+          "msg_id": "msg-f26091",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_29@testdomain.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Stress test body content 29"
+        },
+        {
+          "msg_id": "msg-0da363",
+          "direction": "inbound",
+          "from": "lead_29@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 29"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-ce338aa9",
+      "lead_name": "Lead 28",
+      "lead_email": "lead_28@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 28",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.6372344,
+      "messages": [
+        {
+          "msg_id": "msg-5cef61",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_28@testdomain.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Stress test body content 28"
+        },
+        {
+          "msg_id": "msg-529b7b",
+          "direction": "inbound",
+          "from": "lead_28@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 28"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-2bb7ce24",
+      "lead_name": "Lead 27",
+      "lead_email": "lead_27@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 27",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.6158817,
+      "messages": [
+        {
+          "msg_id": "msg-3a3205",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_27@testdomain.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Stress test body content 27"
+        },
+        {
+          "msg_id": "msg-e740a5",
+          "direction": "inbound",
+          "from": "lead_27@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 27"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-b4c56fe0",
+      "lead_name": "Lead 26",
+      "lead_email": "lead_26@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 26",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.5963361,
+      "messages": [
+        {
+          "msg_id": "msg-0d7770",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_26@testdomain.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Stress test body content 26"
+        },
+        {
+          "msg_id": "msg-2ef647",
+          "direction": "inbound",
+          "from": "lead_26@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 26"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-bdf313e0",
+      "lead_name": "Lead 25",
+      "lead_email": "lead_25@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 25",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.575965,
+      "messages": [
+        {
+          "msg_id": "msg-4094c6",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_25@testdomain.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Stress test body content 25"
+        },
+        {
+          "msg_id": "msg-19013a",
+          "direction": "inbound",
+          "from": "lead_25@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 25"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-3f228f80",
+      "lead_name": "Lead 24",
+      "lead_email": "lead_24@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 24",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.5568292,
+      "messages": [
+        {
+          "msg_id": "msg-7eb875",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_24@testdomain.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Stress test body content 24"
+        },
+        {
+          "msg_id": "msg-90eb5d",
+          "direction": "inbound",
+          "from": "lead_24@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 24"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-7a013c99",
+      "lead_name": "Lead 23",
+      "lead_email": "lead_23@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 23",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.5366604,
+      "messages": [
+        {
+          "msg_id": "msg-5e32e7",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_23@testdomain.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Stress test body content 23"
+        },
+        {
+          "msg_id": "msg-5b87bd",
+          "direction": "inbound",
+          "from": "lead_23@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 23"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-2a55d6f2",
+      "lead_name": "Lead 22",
+      "lead_email": "lead_22@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 22",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.517621,
+      "messages": [
+        {
+          "msg_id": "msg-4cf1d4",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_22@testdomain.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Stress test body content 22"
+        },
+        {
+          "msg_id": "msg-079a33",
+          "direction": "inbound",
+          "from": "lead_22@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 22"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-6ba284cf",
+      "lead_name": "Lead 21",
+      "lead_email": "lead_21@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 21",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.4978166,
+      "messages": [
+        {
+          "msg_id": "msg-1afa36",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_21@testdomain.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Stress test body content 21"
+        },
+        {
+          "msg_id": "msg-2a5917",
+          "direction": "inbound",
+          "from": "lead_21@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 21"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-c9d7ec6b",
+      "lead_name": "Lead 20",
+      "lead_email": "lead_20@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 20",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.4790838,
+      "messages": [
+        {
+          "msg_id": "msg-1119a2",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_20@testdomain.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Stress test body content 20"
+        },
+        {
+          "msg_id": "msg-a4704a",
+          "direction": "inbound",
+          "from": "lead_20@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 20"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-1916324e",
+      "lead_name": "Lead 19",
+      "lead_email": "lead_19@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 19",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.2703915,
+      "messages": [
+        {
+          "msg_id": "msg-2e0ffb",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_19@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 19"
+        },
+        {
+          "msg_id": "msg-45bc79",
+          "direction": "inbound",
+          "from": "lead_19@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 19"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-ac9bb1ba",
+      "lead_name": "Lead 18",
+      "lead_email": "lead_18@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 18",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.2512252,
+      "messages": [
+        {
+          "msg_id": "msg-702a81",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_18@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 18"
+        },
+        {
+          "msg_id": "msg-b1b78d",
+          "direction": "inbound",
+          "from": "lead_18@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 18"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-af20bd48",
+      "lead_name": "Lead 17",
+      "lead_email": "lead_17@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 17",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.232981,
+      "messages": [
+        {
+          "msg_id": "msg-aa0ab2",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_17@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 17"
+        },
+        {
+          "msg_id": "msg-9bf33e",
+          "direction": "inbound",
+          "from": "lead_17@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 17"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-a5e3f790",
+      "lead_name": "Lead 16",
+      "lead_email": "lead_16@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 16",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.2135465,
+      "messages": [
+        {
+          "msg_id": "msg-615c63",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_16@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 16"
+        },
+        {
+          "msg_id": "msg-d1f41b",
+          "direction": "inbound",
+          "from": "lead_16@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 16"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-4bb3d0e0",
+      "lead_name": "Lead 15",
+      "lead_email": "lead_15@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 15",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.1953096,
+      "messages": [
+        {
+          "msg_id": "msg-b178b1",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_15@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 15"
+        },
+        {
+          "msg_id": "msg-5013f5",
+          "direction": "inbound",
+          "from": "lead_15@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 15"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-e3f0fef7",
+      "lead_name": "Lead 14",
+      "lead_email": "lead_14@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 14",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.1761553,
+      "messages": [
+        {
+          "msg_id": "msg-bb4b57",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_14@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 14"
+        },
+        {
+          "msg_id": "msg-17f94b",
+          "direction": "inbound",
+          "from": "lead_14@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 14"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-7826fc53",
+      "lead_name": "Lead 13",
+      "lead_email": "lead_13@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 13",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.1574602,
+      "messages": [
+        {
+          "msg_id": "msg-20a08d",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_13@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 13"
+        },
+        {
+          "msg_id": "msg-fae73d",
+          "direction": "inbound",
+          "from": "lead_13@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 13"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-4230753b",
+      "lead_name": "Lead 12",
+      "lead_email": "lead_12@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 12",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.1393983,
+      "messages": [
+        {
+          "msg_id": "msg-55a9e3",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_12@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 12"
+        },
+        {
+          "msg_id": "msg-88fe73",
+          "direction": "inbound",
+          "from": "lead_12@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 12"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-76e80d99",
+      "lead_name": "Lead 11",
+      "lead_email": "lead_11@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 11",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.1197011,
+      "messages": [
+        {
+          "msg_id": "msg-b2db3d",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_11@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 11"
+        },
+        {
+          "msg_id": "msg-97cd09",
+          "direction": "inbound",
+          "from": "lead_11@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 11"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-38df0aeb",
+      "lead_name": "Lead 10",
+      "lead_email": "lead_10@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 10",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067033.0991948,
+      "messages": [
+        {
+          "msg_id": "msg-55fbe7",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_10@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 10"
+        },
+        {
+          "msg_id": "msg-221ea0",
+          "direction": "inbound",
+          "from": "lead_10@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:53",
+          "body": "Reply from worker 10"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-3c2f69cb",
+      "lead_name": "Lead 9",
+      "lead_email": "lead_9@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 9",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067032.8945966,
+      "messages": [
+        {
+          "msg_id": "msg-3224de",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_9@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 9"
+        },
+        {
+          "msg_id": "msg-2450cd",
+          "direction": "inbound",
+          "from": "lead_9@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Reply from worker 9"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-696e6dd0",
+      "lead_name": "Lead 8",
+      "lead_email": "lead_8@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 8",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067032.8755956,
+      "messages": [
+        {
+          "msg_id": "msg-93be72",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_8@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 8"
+        },
+        {
+          "msg_id": "msg-b80b0d",
+          "direction": "inbound",
+          "from": "lead_8@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Reply from worker 8"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-dce2c2ad",
+      "lead_name": "Lead 7",
+      "lead_email": "lead_7@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 7",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067032.8571405,
+      "messages": [
+        {
+          "msg_id": "msg-15aade",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_7@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 7"
+        },
+        {
+          "msg_id": "msg-f6662c",
+          "direction": "inbound",
+          "from": "lead_7@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Reply from worker 7"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-eb518e15",
+      "lead_name": "Lead 6",
+      "lead_email": "lead_6@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 6",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067032.839215,
+      "messages": [
+        {
+          "msg_id": "msg-f59986",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_6@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 6"
+        },
+        {
+          "msg_id": "msg-809296",
+          "direction": "inbound",
+          "from": "lead_6@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Reply from worker 6"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-d639d5ec",
+      "lead_name": "Lead 5",
+      "lead_email": "lead_5@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 5",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067032.8200471,
+      "messages": [
+        {
+          "msg_id": "msg-332855",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_5@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 5"
+        },
+        {
+          "msg_id": "msg-931171",
+          "direction": "inbound",
+          "from": "lead_5@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Reply from worker 5"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-036897cd",
+      "lead_name": "Lead 4",
+      "lead_email": "lead_4@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 4",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067032.8009555,
+      "messages": [
+        {
+          "msg_id": "msg-2668e9",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_4@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 4"
+        },
+        {
+          "msg_id": "msg-e5dcaa",
+          "direction": "inbound",
+          "from": "lead_4@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Reply from worker 4"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-e947d001",
+      "lead_name": "Lead 3",
+      "lead_email": "lead_3@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 3",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067032.7820556,
+      "messages": [
+        {
+          "msg_id": "msg-ad5360",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_3@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 3"
+        },
+        {
+          "msg_id": "msg-27e199",
+          "direction": "inbound",
+          "from": "lead_3@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Reply from worker 3"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-bb679351",
+      "lead_name": "Lead 2",
+      "lead_email": "lead_2@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 2",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067032.7626605,
+      "messages": [
+        {
+          "msg_id": "msg-a64ad3",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_2@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 2"
+        },
+        {
+          "msg_id": "msg-e8836e",
+          "direction": "inbound",
+          "from": "lead_2@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Reply from worker 2"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-f3052274",
+      "lead_name": "Lead 1",
+      "lead_email": "lead_1@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 1",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067032.7447104,
+      "messages": [
+        {
+          "msg_id": "msg-0cf2cd",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_1@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 1"
+        },
+        {
+          "msg_id": "msg-ed3e82",
+          "direction": "inbound",
+          "from": "lead_1@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Reply from worker 1"
+        }
+      ]
+    },
+    {
+      "thread_id": "thread-e2569bf3",
+      "lead_name": "Lead 0",
+      "lead_email": "lead_0@testdomain.com",
+      "company": "Stress Corp",
+      "subject": "Stress Test Subject 0",
+      "status": "Sent",
+      "intent": "Pending Reply",
+      "last_updated": 1789067032.726673,
+      "messages": [
+        {
+          "msg_id": "msg-0de1b7",
+          "direction": "outbound",
+          "from": "outreach@cielvisuals.com",
+          "to": "lead_0@testdomain.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Stress test body content 0"
+        },
+        {
+          "msg_id": "msg-fbdc13",
+          "direction": "inbound",
+          "from": "lead_0@testdomain.com",
+          "to": "outreach@cielvisuals.com",
+          "date": "2026-09-11 01:03:52",
+          "body": "Reply from worker 0"
+        }
+      ]
+    },
+    {
       "thread_id": "thread-a95acc70",
       "lead_name": "Lead 29",
       "lead_email": "lead_29@testdomain.com",
