@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import os
 import sys
 import json
@@ -136,5 +136,43 @@ class TestBugAndStressSuite(unittest.TestCase):
         invalid_syntax = ContactVerifier.verify_email_deliverability("not_an_email")
         self.assertFalse(invalid_syntax["deliverable"])
 
+    # --- 7. DOMAIN WARMUP & OPENREPLY CONFIGURATION TESTS ---
+    def test_warmup_and_openreply_configuration(self):
+        # Test EmailWarmupEngine config update
+        updated_warmup = self.warmup.update_config({
+            "domain": "testagency.com",
+            "sending_email": "sender@testagency.com",
+            "target_daily_limit": 75,
+            "ramp_speed": "10/day"
+        })
+        self.assertEqual(updated_warmup["domain"], "testagency.com")
+        self.assertEqual(updated_warmup["sending_email"], "sender@testagency.com")
+        self.assertEqual(updated_warmup["target_daily_limit"], 75)
+        self.assertEqual(updated_warmup["ramp_speed"], "10/day")
+
+        # Verify DNS records were calculated
+        dns = updated_warmup.get("dns_records", {})
+        self.assertIn("spf", dns)
+        self.assertIn("dkim", dns)
+        self.assertIn("dmarc", dns)
+
+        # Test OpenReplyEngine channel config update
+        updated_channels = self.openreply.update_channels_config({
+            "ig_handle": "@myagency_ig",
+            "ig_token": "TOKEN_IG_999",
+            "wa_phone": "+18005550199",
+            "wa_token": "TOKEN_WA_888",
+            "fb_page": "FB_PAGE_777",
+            "fb_token": "TOKEN_FB_666"
+        })
+        self.assertEqual(updated_channels["instagram"]["account"], "@myagency_ig")
+        self.assertEqual(updated_channels["instagram"]["token"], "TOKEN_IG_999")
+        self.assertEqual(updated_channels["whatsapp"]["phone"], "+18005550199")
+        self.assertEqual(updated_channels["whatsapp"]["token"], "TOKEN_WA_888")
+        self.assertEqual(updated_channels["facebook"]["page"], "FB_PAGE_777")
+        self.assertEqual(updated_channels["facebook"]["token"], "TOKEN_FB_666")
+
 if __name__ == "__main__":
     unittest.main()
+
+

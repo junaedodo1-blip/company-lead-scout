@@ -1,10 +1,10 @@
 {
   "active": true,
-  "domain": "cielvisuals.com",
-  "sending_email": "outreach@cielvisuals.com",
+  "domain": "testagency.com",
+  "sending_email": "sender@testagency.com",
   "days_running": 7,
   "current_daily_limit": 25,
-  "target_daily_limit": 50,
+  "target_daily_limit": 75,
   "warmup_emails_sent_today": 18,
   "inbox_placement_rate": 98.4,
   "spam_rescued_count": 3,
@@ -12,7 +12,7 @@
   "dns_records": {
     "spf": {
       "valid": true,
-      "record": "v=spf1 include:_spf.mx.cloudflare.net ~all"
+      "record": "v=spf1 include:_spf.mx.testagency.com ~all"
     },
     "dkim": {
       "valid": true,
@@ -20,7 +20,8 @@
     },
     "dmarc": {
       "valid": true,
-      "record": "v=DMARC1; p=none; rua=mailto:dmarc-reports@cielvisuals.com"
+      "record": "v=DMARC1; p=none; rua=mailto:dmarc-reports@testagency.com"
     }
-  }
+  },
+  "ramp_speed": "10/day"
 }

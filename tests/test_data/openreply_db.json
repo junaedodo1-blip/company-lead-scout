@@ -2,18 +2,21 @@
   "channels": {
     "instagram": {
       "active": true,
-      "account": "@cielvisuals.official",
-      "status": "Connected"
+      "account": "@myagency_ig",
+      "status": "Connected",
+      "token": "TOKEN_IG_999"
     },
     "whatsapp": {
       "active": true,
-      "phone": "+8801700000000",
-      "status": "Connected"
+      "phone": "+18005550199",
+      "status": "Connected",
+      "token": "TOKEN_WA_888"
     },
     "facebook": {
       "active": true,
-      "page": "Ciel Visuals B2B",
-      "status": "Connected"
+      "page": "FB_PAGE_777",
+      "status": "Connected",
+      "token": "TOKEN_FB_666"
     }
   },
   "threads": [
@@ -25,7 +28,7 @@
       "company": "Direct Lead",
       "status": "New Inbound",
       "intent": "Inquiry",
-      "last_updated": 1789056605.7018542,
+      "last_updated": 1789058172.8096879,
       "messages": [
         {
           "msg_id": "m-9eb1bc",
@@ -88,6 +91,33 @@
           "from": "+8801711223344",
           "to": "System Host",
           "date": "2026-09-10 22:10:05",
+          "body": "Hello WhatsApp Lead"
+        },
+        {
+          "msg_id": "m-8a1a08",
+          "direction": "inbound",
+          "channel": "whatsapp",
+          "from": "+8801711223344",
+          "to": "System Host",
+          "date": "2026-09-10 22:34:22",
+          "body": "Hello WhatsApp Lead"
+        },
+        {
+          "msg_id": "m-bc6e09",
+          "direction": "inbound",
+          "channel": "whatsapp",
+          "from": "+8801711223344",
+          "to": "System Host",
+          "date": "2026-09-10 22:35:21",
+          "body": "Hello WhatsApp Lead"
+        },
+        {
+          "msg_id": "m-97c1a5",
+          "direction": "inbound",
+          "channel": "whatsapp",
+          "from": "+8801711223344",
+          "to": "System Host",
+          "date": "2026-09-10 22:36:12",
           "body": "Hello WhatsApp Lead"
         }
       ]
